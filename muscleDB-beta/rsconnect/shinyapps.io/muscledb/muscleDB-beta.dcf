@@ -1,0 +1,10 @@
+name: muscleDB-beta
+account: muscledb
+server: shinyapps.io
+appId: 93738
+bundleId: 416819
+url: https://muscledb.shinyapps.io/muscleDB-beta/
+when: 1460433013.45054
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: data/expr_2016-04-10.rds

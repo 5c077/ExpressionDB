@@ -1,0 +1,10 @@
+name: MTapp-NIAMS-demo
+account: muscle-transcriptome-atlas
+server: shinyapps.io
+appId: 31631
+bundleId: 343900
+url: https://muscle-transcriptome-atlas.shinyapps.io/MTapp-NIAMS-demo/
+when: 1452055296.63053
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: comparison.R|README.md|testPlot.R|plotting/2015-10-31.R|plotting/figX.R|plotting/formatPlot.R|plotting/plotting mischief.R|prep/2015-10-18_ANOVAs.R|prep/ANOVAlookupTable.r|prep/calcANOVA.r|prep/importMT.R|prep/timing.R

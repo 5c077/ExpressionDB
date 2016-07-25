@@ -1,0 +1,10 @@
+name: muscleDB-beta
+account: muscledb
+server: shinyapps.io
+appId: 93738
+bundleId: 416775
+url: https://muscledb.shinyapps.io/muscleDB-beta/
+when: 1460428432.96356
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: comparison2.R|pagerui.R|README.md|testPlot.R|data/expr_public_2016-01-02.rds|plotting/2015-10-31.R|plotting/figX.R|plotting/formatPlot.R|plotting/plotting mischief.R|prep/2015-10-18_ANOVAs.R|prep/ANOVAlookupTable.r|prep/calcANOVA.r|prep/importMT.R|prep/timing.R
