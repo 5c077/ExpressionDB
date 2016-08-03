@@ -1,2 +1,2 @@
-# About the Database Template
-The collaborators behind [MuscleDB] (https://github.com/flaneuse/muscleDB/blob/14tissues/README.md) have added Scott Lewis to the fold to spearhead a new branch in this project. Using the structure (skeleton) of MuscleDB, our objective is to establish a template intended to help researchers share and visualise their data on a user-friendly, web-based ShinyApps platform.
+# What is CKDapp?
+In our efforts to investigate the steps necissary for tailoring the code sourced from MuscleDB, Scott Lewis has created CKDapp: an application designed to showcase the unique RNAseq expression levels in mouse Chronic Kidney Disease (CKD) cells.   
