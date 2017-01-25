@@ -6,4 +6,4 @@ fluidRow(h2(HTML("Want to build an app like this for <em>your</em> data?")),
                  many R packages including ggplot2, ggvis, data.table, dplyr, and d3heatmap.")),
          h4(HTML("All source code for the project is available on 
                  <a href = 'https://github.com/5c077/Database-Template' target = 'blank'>Github</a>.")),
-         h4(HTML("Found a bug? Report it <a href = 'https://github.com/5c077/Database-Template/issues' target = 'blank'>here</a>.")))
+         h4(HTML("Found an issue? Report it <a href = 'https://github.com/5c077/Database-Template/issues' target = 'blank'>here</a>.")))
