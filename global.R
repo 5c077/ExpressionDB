@@ -30,8 +30,6 @@ GOs = readRDS('data/allOntologyTerms.rds')
 # Set the maximum of the expression, for the limits on the expr widget.
 maxInit <- max(data$expr)
 
-#allTissues = c('wild-type', 'chronic kidney disease')
-
 
 # List of tissues
 tissueList = list(
