@@ -4,7 +4,7 @@ The collaborators behind [MuscleDB](https://github.com/flaneuse/muscleDB) have a
 ExprDB was built using the  “dplyr”, “tidyr”, “DT”, “d3heatmap”, “ggvis”, “ggplot2”, “dtplyr”, “data.table”, “plotly”, and “RColorBrewer” packages. You can install them with the install.packages(" ") command. These packages along with [RStudio](https://www.rstudio.com/) will need to be installed in order for ExprDB to work properly. 
 ## Formatting Your Data
 User data will need to be formatted in order to be implemented into the ExprDB framework. 
-Below is a list of the required vectors. Note: the names of these columns are case sensitive. 
+Below is a list of the required vectors and their corresponding descriptions. Note: the names of these columns are case sensitive. 
 
 expr 
 > the quantitative expression level of the corresponding gene.
