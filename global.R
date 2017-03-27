@@ -33,7 +33,7 @@ maxInit <- max(data$expr)
 
 # List of tissues
 tissueList = list(
-'tissue A' = "tissue A", 'Tissue B' = 'Tissue B')
+'tissue A' = 'tissue A', 'Tissue B' = 'Tissue B')
 
 allTissues = c(
   
