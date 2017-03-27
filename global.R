@@ -24,7 +24,7 @@ library(RColorBrewer)
 # mt_source = src_sqlite('~/Dropbox/Muscle Transcriptome Atlas/Website files/data/expr_public_2015-11-08.sqlite3', create = FALSE)
 # data = tbl(mt_source, 'MT')
 
-data = readRDS('template.rds')
+data = read.csv('template.csv')
 GOs = readRDS('data/allOntologyTerms.rds')
 
 # Set the maximum of the expression, for the limits on the expr widget.
