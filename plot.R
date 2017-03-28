@@ -7,7 +7,6 @@ theme_xOnly<- function() {
         axis.title = element_blank(), 
         legend.position="none",
         panel.border = element_rect(colour = grey90K, size = 0.25, fill = NA),
-        #panel.background = element_blank(),
         panel.grid.major = element_line(color = grey60K, size = 0.2),
         panel.grid.major.y = element_blank(),
         panel.margin = rep(unit(15, units = 'points'),4),

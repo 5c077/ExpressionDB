@@ -24,18 +24,24 @@ library(RColorBrewer)
 # mt_source = src_sqlite('~/Dropbox/Muscle Transcriptome Atlas/Website files/data/expr_public_2015-11-08.sqlite3', create = FALSE)
 # data = tbl(mt_source, 'MT')
 
-data = read.csv('template.csv')
-GOs = readRDS('data/allOntologyTerms.rds')
+#specify the path to your custom .csv data frame. 'blank_frame.csv' is an example data frame with all of the required fields left blank, of course.
+data = read.csv('blank_frame.csv')
+
+GOs = readRDS("allOntologyTerms.rds")
 
 # Set the maximum of the expression, for the limits on the expr widget.
-maxInit <- max(data$expr)
+maxInit = max(data$expr)
 
+# List of tissues; add tissue names here. Example shown!
+tissueList = list('tissue1' = 'tissue1',
+                'tissue2'='tissue2')
 
-# List of tissues
-tissueList = list(
-'tissue A' = 'tissue A', 'Tissue B' = 'Tissue B')
+allTissues = c('tissue1', 'tissue2',
+               'tissue3', 'tissue4'
+               )
 
-allTissues = c(
-  
-               'Tissue A', 'Tissue B')
-
+# skelMuscles = c('DIA', 'EDL', 'EYE', 'SOL', 'TON','FDB', 'MAS', 'PLA', 'TAN', 'QUAD', 'GAS')
+# These are the tissues that will be selected initially -- when the application first starts up.
+selTissues = c(
+               'tissue1', 'tissue2', 'tissue3'
+               )

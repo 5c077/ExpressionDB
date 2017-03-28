@@ -16,7 +16,7 @@ output$summaryTable <- renderDataTable({
   
   colnames(sumTable) = tableCols
 
-  data.frame("Condition:" = rep("", 5),
+  data.frame("tissue:" = rep("", 5),
              sumTable)
 }, selection = 'none',
 options = list(searching = FALSE, paging = FALSE, info = FALSE, ordering = FALSE,

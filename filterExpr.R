@@ -32,28 +32,21 @@ filterData <- reactive({
   
   # Generate key for muscles
   muscleSymbols = plyr::mapvalues(selMuscles,
-                                  from = c(
-                            #        'atria', 'left ventricle',
-                             #              'total aorta', 'right ventricle',
-                              
-                        #                   'soleus', 
-                         #                  'diaphragm',
-                          #                 'eye', 'EDL', 'FDB',
-                           #                'thoracic aorta', 'abdominal aorta',
-                            #               'tongue', 'masseter',
-                             #              'plantaris'
-                #                           'CKD','WT'
-                                           ),
-                                  to = c(
-                           #              'ATR', 'LV',
-                            #             'AOR', 'RV',
-                             #            'SOL', 'DIA',
-                              #           'EYE', 'EDL', 'FDB',
-                               #          'TA', 'AA', 
-                                #         'TON', 'MAS',
-                                 #        'PLA'
-                    #                     'CKD','WT'
-                                         ),
+                                  from = c('atria', 'left ventricle',
+                                           'total aorta', 'right ventricle',
+                                           'soleus', 
+                                           'diaphragm',
+                                           'eye', 'EDL', 'FDB',
+                                           'thoracic aorta', 'abdominal aorta',
+                                           'tongue', 'masseter',
+                                           'plantaris'),
+                                  to = c('ATR', 'LV',
+                                         'AOR', 'RV',
+                                         'SOL', 'DIA',
+                                         'EYE', 'EDL', 'FDB',
+                                         'TA', 'AA', 
+                                         'TON', 'MAS',
+                                         'PLA'),
                                   warn_missing = FALSE)
   
   
@@ -114,7 +107,7 @@ filterData <- reactive({
       # Two selected muscles for comparison filtered above.
       
       # Filter on expression: find tissues with any values within the range.
-        filteredTranscripts = filtered %>%
+      filteredTranscripts = filtered %>%
         filter(expr <= input$maxExprVal,
                expr >= input$minExprVal) %>% 
         select(transcript)
@@ -136,14 +129,13 @@ filterData <- reactive({
           mutate_(.dots = setNames(paste0('`', input$muscle1,'` / `', input$muscle2,'`'), 'FC')) %>% 
           mutate(logFC = log10(FC),
                  logQ = -log10(q))
-                  id = dense_rank(transcript)
+                 # id = dense_rank(transcript))
         
       } else {
         filtered = data.table(id = 0, name = 'no data', FC = 0, logFC = 0, logQ = 0, geneSymbol = NA, transcriptName = NA)
       }
       
-    } 
-    else if(input$ref != 'none') {
+    } else if(input$ref != 'none') {
       
       # -- Case 2: expr + FC filtering ---------------------------------------------
       # If advanced filtering is checked, always filter on expression.

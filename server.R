@@ -45,13 +45,13 @@ shinyServer(
     source("plot.R", local = TRUE)
     
     # COMPARISON output
-   # source("comparison.R", local = TRUE)
+    source("comparison.R", local = TRUE)
     
     # PCA ---------------------------------------------------------------------
     
     # PCA output
-#    source("calcPCA.R", local = TRUE)
- #   source("PCA.R", local = TRUE)
+    source("calcPCA.R", local = TRUE)
+    source("PCA.R", local = TRUE)
 
     # 
     # output$test <- renderPrint({ # Test function for returning current page.
@@ -62,12 +62,12 @@ shinyServer(
     # })
     
     # HEATMAP -----------------------------------------------------------------
-  #  source("heatmap.R", local = TRUE) 
+    source("heatmap.R", local = TRUE) 
     
     
     # VOLCANO PLOT ------------------------------------------------------------
     
-  #  source("volcano.R", local = TRUE)
+    source("volcano.R", local = TRUE)
     
     
   })
