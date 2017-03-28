@@ -15,7 +15,7 @@ sidebar <- dashboardSidebar(
                                 placeholder = 'search ontology',
                                 onInitialize = I('function() { this.setValue(""); }'))),
   
-  # -- Muscle filtering --
+  # -- Tissue filtering --
   checkboxGroupInput("muscles","tissue type", inline = FALSE,
                      choices = tissueList,
                      selected = selTissues),
@@ -119,8 +119,7 @@ body <- dashboardBody(
     
     # -- Full table with mini-stats. --
     tabItem(tabName = "table",
-            
-            # fluidRow(pageruiInput('pager', page_current = 1, pages_total = 1)),
+          
             # valueBoxes of min, max, avg.
             fluidRow(
               infoBoxOutput("maxExpr", width = 4),
@@ -132,9 +131,6 @@ body <- dashboardBody(
                      downloadButton('downloadTable', label = NULL, 
                                     class = 'btn btn-lg active btn-inverted hover btn-inverted'),
                      h5(""))),
-            #           actionButton("saveRowsTable", "save rows",
-            #                        icon = NULL)
-            #     infoBox("dwndTable", downloadLink('downloadTable'), icon = icon("download"), width = 1)
             
             
             # Main table
@@ -164,9 +160,7 @@ body <- dashboardBody(
                             fluidRow(br()),
                             fluidRow(br()),
                             fluidRow(br()),
-                            # fluidRow(actionButton('saveVolcano', 'save selected rows')),
-                            fluidRow(br())))),
-    # fluidRow(downloadButton('csvVolcano', 'save to .csv'))))),    
+                            fluidRow(br())))),   
     # -- PCA --
     tabItem(tabName = "PCA",
             fluidRow(h4('Principal Components of Selected Tissues')),
@@ -215,7 +209,6 @@ body <- dashboardBody(
                                                     "by column" = "col", "log" = "log")),
                             checkboxInput("orderHeat", label = "group genes by similarity?", value = FALSE)
                      ))
-            # fluidRow(plotOutput("heatmapScale"))
     ),
     
     # -- Code --
@@ -228,7 +221,7 @@ body <- dashboardBody(
 # Dashboard definition (main call) ----------------------------------------
 
 dashboardPage(
-  title = "", #Tile of your data set goes between the quote here. 
+  title = "", #Title of your data set goes between the quote here. 
   header,
   sidebar,
   body
