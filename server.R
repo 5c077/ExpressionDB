@@ -30,17 +30,6 @@ shinyServer(
     # DOWNLOAD data buttons.
     source("downloadFncns.R", local = TRUE)
     
-    
-    # PLOT (MAIN) -------------------------------------------------------------
-    
-    # PAGINATION
-    # pager_state = input$pager
-    # updatePageruiInput(session, 'pager', page_current = new_page_current)
-    # updatePageruiInput(session, 'pager', pages_total = new_pages_total)
-    # updatePageruiInput(session, 'pager', 
-    #                    page_current = new_page_current, 
-    #                    pages_total = new_pages_total)
-    
     # PLOT output
     source("plot.R", local = TRUE)
     
@@ -52,14 +41,6 @@ shinyServer(
     # PCA output
     source("calcPCA.R", local = TRUE)
     source("PCA.R", local = TRUE)
-
-    # 
-    # output$test <- renderPrint({ # Test function for returning current page.
-    #   iBeg = input$table_state$start+1
-    #   iEnd = input$table_state$length+input$table_state$start
-    #   return(beg:end)
-    #   # as.numeric(input$table_rows_selected)
-    # })
     
     # HEATMAP -----------------------------------------------------------------
     source("heatmap.R", local = TRUE) 
