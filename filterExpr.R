@@ -32,21 +32,10 @@ filterData <- reactive({
   
   # Generate key for muscles
   muscleSymbols = plyr::mapvalues(selMuscles,
-                                  from = c('atria', 'left ventricle',
-                                           'total aorta', 'right ventricle',
-                                           'soleus', 
-                                           'diaphragm',
-                                           'eye', 'EDL', 'FDB',
-                                           'thoracic aorta', 'abdominal aorta',
-                                           'tongue', 'masseter',
-                                           'plantaris'),
-                                  to = c('ATR', 'LV',
-                                         'AOR', 'RV',
-                                         'SOL', 'DIA',
-                                         'EYE', 'EDL', 'FDB',
-                                         'TA', 'AA', 
-                                         'TON', 'MAS',
-                                         'PLA'),
+                                  from = c('tissue1', 'tissue2', #Full names of all tissue go here.
+                                           ),
+                                  to = c('T1', 'T2', #Abbreviations of tissue names go here.
+                                        ),
                                   warn_missing = FALSE)
   
   
