@@ -72,7 +72,7 @@ sidebar <- dashboardSidebar(
 
 # Header ------------------------------------------------------------------
 header <- dashboardHeader(
-  title = "ExpressionDB",  #The title of your dataset goes here.
+  title = "",  #The title of your dataset goes here.
   # -- Message bar --
   dropdownMenu(type = "messages", badgeStatus = NULL, icon = icon("question-circle"),
                messageItem("ExpressionDB",
@@ -221,7 +221,7 @@ body <- dashboardBody(
 # Dashboard definition (main call) ----------------------------------------
 
 dashboardPage(
-  title = "ExpressionDB", #Title of your data set goes between the quote here. 
+  title = "", #Title of your data set goes between the quote here. 
   header,
   sidebar,
   body
