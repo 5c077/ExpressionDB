@@ -82,7 +82,7 @@ header <- dashboardHeader(
                ),
                messageItem("Need help getting started?",
                            "click here", icon = icon("question-circle"),
-                           href="https://github.com/5c077/ExpressionDB/blob/master/README.md"
+                           href="https://expressiondb.wordpress.com/"
                ),
                messageItem("Website code and data scripts",
                            "find the code on Github", icon = icon("code"),
