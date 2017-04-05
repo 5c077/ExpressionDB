@@ -16,7 +16,7 @@ sidebar <- dashboardSidebar(
                                 onInitialize = I('function() { this.setValue(""); }'))),
   
   # -- Tissue filtering --
-  checkboxGroupInput("muscles","tissue type", inline = FALSE,
+  checkboxGroupInput("muscles","sample type", inline = FALSE,
                      choices = tissueList,
                      selected = selTissues),
   
@@ -72,7 +72,7 @@ sidebar <- dashboardSidebar(
 
 # Header ------------------------------------------------------------------
 header <- dashboardHeader(
-  title = "Title",  #The title of your dataset goes here.
+  title = "ExpressionDB",  #The title of your dataset goes here.
   # -- Message bar --
   dropdownMenu(type = "messages", badgeStatus = NULL, icon = icon("question-circle"),
                messageItem("ExpressionDB",
@@ -98,9 +98,9 @@ body <- dashboardBody(
   
   # -- Import custom CSS --
   tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "customStyle.css"),
-    includeScript("google-analytics.js")), # -- Include Google Analytics file --
-  
+    tags$link(rel = "stylesheet", type = "text/css", href = "customStyle.css")
+    #,includeScript("google-analytics.js"), # -- Include Google Analytics file --
+  ),
   # -- Each tab --
   tabItems(
     
@@ -145,7 +145,7 @@ body <- dashboardBody(
     
     # -- Volcano plot --
     tabItem(tabName = "volcano", 
-            fluidRow(h4('Select two tissues to compare.')),
+            fluidRow(h4('Select two samples to compare.')),
             fluidRow(column(4, uiOutput('m1')),
                      column(4, uiOutput('m2'))),
             fluidRow(plotOutput("volcanoPlot", 
@@ -221,7 +221,7 @@ body <- dashboardBody(
 # Dashboard definition (main call) ----------------------------------------
 
 dashboardPage(
-  title = "", #Title of your data set goes between the quote here. 
+  title = "ExpressionDB", #Title of your data set goes between the quote here. 
   header,
   sidebar,
   body

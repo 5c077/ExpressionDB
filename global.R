@@ -6,10 +6,8 @@ library(DT)
 library(d3heatmap)
 library(ggvis)
 library(ggplot2)
-# library(rCharts)
 library(dtplyr)
 library(data.table)
-#library(llamar)
 library(plotly)
 library(RColorBrewer)
 
@@ -19,10 +17,10 @@ library(RColorBrewer)
 # Forked from https://github.com/wleepang/shiny-pager-ui
 # source('pagerui.R')
 
-# Import in user-specified data set -----------------------------
+# Import user-specified data set -----------------------------
 
-#specify the path to your custom .csv data frame. 'blank_frame.csv' is an example data frame with all of the required fields left blank, of course.
-data = read.csv('blank_frame.csv')
+#specify the path to your custom .csv data frame. 'sample_data.csv' is an example data frame with sample data and all of the required fields.
+data = read.csv("sample_data.csv")
 
 GOs = readRDS("allOntologyTerms.rds")
 
@@ -30,13 +28,14 @@ GOs = readRDS("allOntologyTerms.rds")
 maxInit = max(data$expr)
 
 # List of tissues; add tissue names here. Example shown!
-tissueList = list('tissue1' = 'tissue1',
-                'tissue2'='tissue2')
+tissueList = list('pancreas' = 'pancreas','liver'='liver','kidney'='kidney'
+                  )
 
-allTissues = c('tissue1', 'tissue2',
-               'tissue3', 'tissue4'
+allTissues = c('pancreas', 'liver',
+               'kidney'
                )
 # These are the tissues that will be selected initially -- when the application first starts up.
 selTissues = c(
-               'tissue1', 'tissue2', 'tissue3'
+               'pancreas', 'liver', 'kidney'
                )
+abbreviations = c('PAN', 'LIV', 'KID')
