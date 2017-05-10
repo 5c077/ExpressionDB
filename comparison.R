@@ -106,7 +106,7 @@ output$compPlot = renderPlot({
   ggplot(filteredData,
          aes(x = logFC, xend = 0, y = tissue, yend = tissue,
              fill = logFC)) +
-    geom_segment(colour = grey40K, size = 0.25) +
+    geom_segment(colour = grey90K, size = 0.25) +
     geom_vline(xintercept = 0, colour = grey90K, size = 0.25) +
     geom_point(size = 4, colour = grey70K,
                shape = 21) +

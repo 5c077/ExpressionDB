@@ -28,13 +28,14 @@ GOs = readRDS("allOntologyTerms.rds")
 maxInit = max(data$expr)
 
 # List of tissues; add tissue names here. Example shown!
-tissueList = list(
+tissueList = list('pancreas' = 'pancreas','liver'='liver','kidney'='kidney'
                   )
 
-allTissues = c(
+allTissues = c('pancreas', 'liver',
+               'kidney'
                )
 # These are the tissues that will be selected initially -- when the application first starts up.
 selTissues = c(
-               
+               'pancreas', 'liver', 'kidney'
                )
-abbreviations = c()
+abbreviations = c('PAN', 'LIV', 'KID')
