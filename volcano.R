@@ -69,12 +69,12 @@ observeEvent(input$volcanoDblclick, {
 
 
 output$m1 = renderUI(
-  selectInput('muscle1', label = 'muscle 1',
+  selectInput('muscle1', label = 'sample 1',
               choices = input$muscles,
               width = '200px'))
 
 output$m2 = renderUI(
-  selectInput('muscle2', label = 'muscle 2 (reference)',
+  selectInput('muscle2', label = 'samplele 2 (reference)',
               choices = input$muscles,
               width = '200px'))
 
