@@ -1,0 +1,5 @@
+silas<-readRDS("expr_2017-04-16.rds")
+david_go<-read.csv("david_output_go.csv")
+gtex_data<-read.csv("gtex_data.csv")
+output<-dplyr::left_join(david_go,gtex_data,by="transcript")
+write.csv(output,"gtex_sample_data_with_go.csv")
