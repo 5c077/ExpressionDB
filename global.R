@@ -11,11 +11,12 @@ library(data.table)
 library(plotly)
 library(RColorBrewer)
 
-data_all<-read.csv("")
-annot_all<-read.csv("")
+
 data <- read.csv("")
   if exists(data) == FALSE
-    data = dplyr::left_join(data_all,annot_all,by="gene")
+  data_all<-read.csv("")
+  annot_all<-read.csv("")
+  data <- dplyr::left_join(data_all,annot_all,by="gene")
   end
 
 # Import user-specified data set -----------------------------
