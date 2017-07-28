@@ -11,8 +11,12 @@ library(data.table)
 library(plotly)
 library(RColorBrewer)
 
-
-
+data_all<-read.csv("")
+annot_all<-read.csv("")
+data <- read.csv("")
+  if exists(data) == FALSE
+    data = dplyr::left_join(data_all,annot_all,by="gene")
+  end
 # Source javascript pagination code ---------------------------------------
 # Forked from https://github.com/wleepang/shiny-pager-ui
 # source('pagerui.R')
