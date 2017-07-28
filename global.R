@@ -17,9 +17,6 @@ data <- read.csv("")
   if exists(data) == FALSE
     data = dplyr::left_join(data_all,annot_all,by="gene")
   end
-# Source javascript pagination code ---------------------------------------
-# Forked from https://github.com/wleepang/shiny-pager-ui
-# source('pagerui.R')
 
 # Import user-specified data set -----------------------------
 
