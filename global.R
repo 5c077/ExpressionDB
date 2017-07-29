@@ -12,7 +12,7 @@ library(plotly)
 library(RColorBrewer)
 
 
-data <- read.csv("user_data.csv")
+data <- readRDS("user_data.rds")
   if exists(data) == FALSE
   data_all<-read.csv("quant.csv")
   annot_all<-read.csv("annot.csv")
