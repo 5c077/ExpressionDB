@@ -12,10 +12,10 @@ library(plotly)
 library(RColorBrewer)
 
 
-data <- read.csv("")
+data <- read.csv("user_data.csv")
   if exists(data) == FALSE
-  data_all<-read.csv("")
-  annot_all<-read.csv("")
+  data_all<-read.csv("quant.csv")
+  annot_all<-read.csv("annot.csv")
   data <- dplyr::left_join(data_all,annot_all,by="gene")
   end
 
