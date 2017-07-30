@@ -14,9 +14,10 @@ library(RColorBrewer)
 
 data <- readRDS("user_data.rds")
   if exists(data) == FALSE
-  data_all<-read.csv("quant.csv")
+  quant_all<-read.csv("quant.csv")
   annot_all<-read.csv("annot.csv")
-  data <- dplyr::left_join(data_all,annot_all,by="gene")
+  data <- dplyr::left_join(quant_all,annot_all,by="gene")
+  saveRDS(data,file="user_data.rds")
   end
 
 # Import user-specified data set -----------------------------
