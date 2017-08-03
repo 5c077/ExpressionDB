@@ -56,9 +56,9 @@ filterData <- reactive({
   }
   
   filter_gene = function(df, filteredDF) {
-    df %>% filter_(
-    paste0(data_gene_id, "%in%",  filteredDF, "[['", data_gene_id, "']]")
-    )
+    filter_arg = paste0(data_gene_id, " %in% list('",  paste(filteredDF, collapse = "','"), "')")
+    
+    df %>% filter_(filter_arg)
   }
   
   
@@ -66,7 +66,7 @@ filterData <- reactive({
     filtered %>%
       filter(expr <= input$maxExprVal,
              expr >= input$minExprVal) %>% 
-      select_(data_gene_id)
+      pull(data_gene_id)
     
   }
   
@@ -132,7 +132,6 @@ filterData <- reactive({
       }
       
     } else if(input$ref != 'none') {
-      
       # -- Case 2: expr + FC filtering ---------------------------------------------
       # If advanced filtering is checked, always filter on expression.
       # Only use this case if a reference tissue is checked.
@@ -140,7 +139,6 @@ filterData <- reactive({
       # -- Filter on expr change --
       # Check to make sure that expression filtering is on.  Otherwise, don't filter.
       filteredTranscripts = filter_expr(filtered)
-        
       
       # -- Filter on fold change --
       # Running last since it's kind of annoying. 
@@ -166,7 +164,6 @@ filterData <- reactive({
     } else {
       # -- Case 3: just filter on expression. --
       filteredTranscripts = filter_expr(filtered)
-      
       
       # Select the transcripts where at least one tissue meets the conditions.
       filtered = filtered %>% 
