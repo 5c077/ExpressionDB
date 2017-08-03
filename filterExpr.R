@@ -46,43 +46,38 @@ filterData <- reactive({
   # you'll find only genes w/ both the name Myod1 and kinase as an ontology (which doesn't exist).
   # To switch this to an OR relationship, combine the geneInput and ont with an '|'.
   
+  basic_filter = function(df) {
+    df %>% 
+      select_("-dplyr::contains('_q')", q = qCol) %>% 
+      filter(tissue %in% selMuscles) %>%    # muscles
+      filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
+      filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
+    
+  }
+  
   # Check if q-value filtering is turned on
   if(input$adv == FALSE & qCol %in% colnames(data)) {
     filtered = data %>% 
-      select_("-dplyr::contains('_q')", q = qCol) %>% 
-      filter(tissue %in% selMuscles,   # muscles
-             grepl(eval(geneInput), shortName, ignore.case = TRUE),
-             str_detect(GO, ont))
+      basic_filter()
+    
     
   }  else if (input$adv == FALSE) {
     filtered = data %>% 
-      select_("-dplyr::contains('_q')") %>% 
-      filter(tissue %in% selMuscles,   # muscles
-             grepl(eval(geneInput), shortName, ignore.case = TRUE),  # gene symbol
-             str_detect(GO, ont)) %>%     # gene ontology
+      basic_filter() %>%     
       mutate(q = NA)
     
   } else if(qCol %in% colnames(data)){
     # Check if the q values exist in the db.
     filtered = data %>% 
-      select_("-dplyr::contains('_q')", q = qCol) %>% 
-      filter(tissue %in% selMuscles,   # muscles
-             grepl(eval(geneInput), shortName, ignore.case = TRUE),  # gene symbol
-             str_detect(GO, ont),               # gene ontology
-             q < input$qVal)
+      basic_filter() %>% 
+      filter(q < input$qVal)
+    
   } else {
     filtered = data %>% 
-      select(-dplyr::contains('_q')) %>% 
-      filter(tissue %in% selMuscles,   # muscles
-             grepl(eval(geneInput), shortName, ignore.case = TRUE),  # gene symbol
-             str_detect(GO, ont)                # gene ontology                 
-      ) %>% 
+      basic_filter() %>% 
       mutate(q = NA)
   }
   
-  
-  
-  # filter(filtered, row_number(transcript) == 1L)
   
   
   # Filter on expression & fold change  ---------------------------------------------
@@ -101,7 +96,7 @@ filterData <- reactive({
         select(transcript)
       
       filtered = filtered %>% 
-        filter(transcript %in% filteredTranscripts$transcript) %>%  # FIlter
+        filter(transcript %in% filteredTranscripts$transcript) %>%  # Filter
         select(transcript = transcriptLink, gene = geneLink, 
                tissue, expr, q, transcriptName = transcript, geneSymbol = gene) %>% 
         mutate(expr = ifelse(expr == 0, 0.0001, expr) # Correction so don't divide by 0. 
@@ -117,7 +112,6 @@ filterData <- reactive({
           mutate_(.dots = setNames(paste0('`', input$muscle1,'` / `', input$muscle2,'`'), 'FC')) %>% 
           mutate(logFC = log10(FC),
                  logQ = -log10(q))
-                 # id = dense_rank(transcript))
         
       } else {
         filtered = data.table(id = 0, name = 'no data', FC = 0, logFC = 0, logQ = 0, geneSymbol = NA, transcriptName = NA)
