@@ -61,6 +61,7 @@ filterData <- reactive({
              grepl(eval(geneInput), shortName, ignore.case = TRUE),  # gene symbol
              str_detect(GO, ont)) %>%     # gene ontology
       mutate(q = NA)
+    
   } else if(qCol %in% colnames(data)){
     # Check if the q values exist in the db.
     filtered = data %>% 
