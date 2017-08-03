@@ -1,80 +1,203 @@
 
 # prep_data.R ---------------------------------------------------------------
-# prep_data is called by global.R once initially to set up the data fro 
+# prep_data is called by global.R once initially to set up the data for use within the Shiny app.
+# # It does the following things:
+# 1) imports a gene ontology look up table
+# 2) finds unique ontology terms (for use in the app to search by ontology term)
+# 3) creates links to Entrez Gene websites for every gene, if not already specified
+# 4) imports gene expression data
+# 5) calculates average and standard deviation for expression data for each sample type (e.g. Liver tissue)
+# 6) calculates pairwise ANOVAs to detect significant differences between pairs of samples (e.g. Liver and Spleen)
+# 7) calculates ANOVAs for all the samples
+# 8) merges expression data with ontologies and ANOVAs
+# 9) saves everything into an RMD file for later use 
+
+# -- checks performed --
+# 1. check if column names have spaces; convert to periods (e.g. 'gene name' to 'gene.name')
+# 2. check that column names exist within `go` and `df` data files.
+# 3. check if entrez_var column exists. If not, create it.
+# 4. check that the data_gene_id column contains unique values
+# 5. check that the data_file contains only numeric values, aside from whatever is in `data_gene_id`
+# 6. check that data_file contains the correct sample names
+# 7. check that data_file and go_file have values that can merge together
 
 prep_data = function(data_file, go_file, 
                      # variable names within data_file
-                     data_gene_id = 'gene_id',
+                     sample_vars,
+                     data_gene_id = 'gene',
                      # variable names within go_file
-                     go_gene_id = 'gene_id',
-                     go_gene_var = 'gene',
-                     ont_var = 'GO_term',
+                     go_gene_id = 'gene',
+                     go_gene_descrip = 'gene_description',
+                     ont_var = 'GO',
+                     entrez_var = 'geneLink',
                      entrez_link = 'http://www.ncbi.nlm.nih.gov/gene/?term=',
                      export_dir = 'data/') {
+  # Check inputs ------------------------------------------------------------
+  # Spaces aren't allowed in column names; during import they'll be converted to periods.
+  data_gene_id = replace_space(data_gene_id)
+  go_gene_id = replace_space(go_gene_id)
+  go_gene_descrip = replace_space(go_gene_descrip)
+  ont_var = replace_space(ont_var)
+  entrez_var = replace_space(entrez_var)
   
-  # gene ontology import ----------------------------------------------------
+  # (1) gene ontology import ----------------------------------------------------
+  
   print('loading data... this may take a few minutes (especially if your data are big)')
   # read in gene ontologies
   go = read.csv(go_file, stringsAsFactors = FALSE)
   
-  if (!go_gene %in% colnames(go)) {
-    error("Please edit argument `go_gene` to be the column name containing the gene in your data set.")
-  }
-  
+  # check inputs: do column names exist in the dataset
   if (!go_gene_id %in% colnames(go)) {
-    error("Please edit argument `go_gene_id` to be the column name containing the Ensembl gene id in your data set.")
+    stop("Please edit argument `go_gene_id` to be the column name containing the common gene id in your data set.")
   }
   
-  if (!go_transcript %in% colnames(go)) {
-    error("Please edit argument `go_transcript` to be the column name containing the transcript name in your data set.")
+  if (!go_gene_descrip %in% colnames(go)) {
+    stop("Please edit argument `go_gene_descrip` to be the column name containing the gene descriptions in your data set.")
   }
   
-  # pull unique ontology terms
+  if (!ont_var %in% colnames(go)) {
+    stop("Please edit argument `ont_var` to be the column name containing the ontology terms in your data set.")
+  }
+  
+  if (!entrez_var %in% colnames(go)) {
+    # if entrez_var doesn't exist, initialize it with NAs
+    go = go %>% mutate(entrez_var = NA)
+  }
+  
+  
+  
+  # (2) pull unique ontology terms
   go_terms = go %>% distinct_(ont_var) %>% pull(ont_var)
   
   
-  go = go %>% group_by_(go_gene) %>%
+  go = go %>% group_by_(go_gene_id, go_gene_descrip, entrez_var) %>%
     # collapse gene ontologies into a nested structure, with
     # a single row for each transcript and an embedded list of 
     # ontology terms
-    summarise_(GO = paste0('list(', ont_var, ')')) %>% 
-    # create URLs for links to UCSC and Entrez-Gene
+    summarise_(GO = paste0('list(unique(setdiff(', ont_var, ', "")))')) %>% 
+    # (3) create URLs for links to Entrez-Gene
     # If they're already defined in the data frame, ignore.
-    mutate(geneLink = ifelse(is.na(geneLink) | geneLink == '', 
-                             paste0("<a href = '", entrez_link, go_gene_id,"' target = '_blank'>", go_gene, "</a>"),
-                             geneLink),
-           transcriptLink = ifelse(is.na(transcriptLink) | transcriptLink == '', 
-                                   paste0("<a href = '", ucsc_link, "' target = '_blank'>", go_transcript, "</a>"),
-                                   geneLink)
+    mutate(
+      # geneLink = ifelse(all(is.na(geneLink)),
+      #                            paste0("<a href = '", entrez_link, go_gene_id,"' target = '_blank'>", 
+      #                                   go_gene_var, "</a>"), geneLink)
     )  
-  # expression data import --------------------------------------------------
-  df = read.csv(data_file, stringsAsFactors = FALSE)
   
-  # convert the data frame from a wide format
-  # assumptions: there are two columns, specified by `data_gene` and `data_transcript`.
-  # everything else is assumed to be the average expression for that sample.
-  df = df %>% 
-    gather('tissue', 'expr', select_vars(include = c(-matches(data_gene), -matches(data_transcript))))
+  # (4) expression data import --------------------------------------------------
+  df = read.csv(data_file, stringsAsFactors = FALSE) %>% 
+    filter_(paste0('!is.na(',data_gene_id, ') & ', data_gene_id, '!= ""'))
   
-  # merge ontology terms and expression data --------------------------------
-  # Check column is within the data.
-  if (!data_gene %in% colnames(df)) {
-    error("Please edit argument `data_gene` to be the column name containing the gene in your data set.")
+  # -- checks --
+  # check that all columns are numeric
+  if(df %>% 
+     select_(paste0('-', data_gene_id)) %>% 
+     summarise_all(funs(sum(!is.numeric(.)))) %>% 
+     t() %>% 
+     sum() != 0) {
+    stop("`data_file` contains more than one non-numeric columns. Please input only the gene id and numeric expression data.")
   }
   
-  df = df %>% left_join(go, by = setNames(go_gene, data_gene))
+  # check that gene_id is unique
+  if(sum(duplicated(df[[data_gene_id]]))) {
+    stop('The values within `data_gene_id` must be unique values to merge to the ontology terms. Remove duplicate values.')
+  }
   
-  # export ------------------------------------------------------------------
+  # Check merging column is within the data. 
+  df_cols = colnames(df) 
+  
+  if (!data_gene_id %in% df_cols) {
+    stop("Please edit argument `data_gene_id` to be the column name containing the gene in your data set.")
+  }
+  
+  # Check that the replicate names exist as columns within the data.
+  expr_cols = setdiff(df_cols %>% str_replace_all('[0-9]+', ''), data_gene_id)
+  
+  if(!setequal(sample_vars, expr_cols)) {
+    stop('Check that `sample_vars` within `global.R` match the column names within `data_file`.')
+  }
+  
+  # calculate values for expression data --------------------------------------------------
+  # convert the data frame to a long format
+  # assumptions: there are one columns, specified by `data_gene_id` and `data_transcript`.
+  # everything else is assumed to be a replicate of expression for that sample.
+  df = df %>% 
+    gather('tissue_rep', 'expr', select_vars(include = c(-matches(data_gene_id)))) %>% 
+    # mutate(rep_num = as.numeric(str_extract_all(tissue_rep, '[0-9]+'))) %>% 
+    separate(tissue_rep, into = c('tissue', 'repinfo'), sep = '[0-9]') %>% 
+    select(-repinfo)
+  
+  # Calculate the number of unique samples (e.g. Liver + Spleen)
+  numSamples = length(unique(df$tissue))
+  
+  # (5) Calculate average and standard deviation for the samples
+  df_sum = df %>% 
+    group_by_(data_gene_id, 'tissue') %>% 
+    summarise(std = sd(expr),
+              expr = mean(expr))
+  
+  # ANOVAs --------------------------------------------------------------------------
+  print('Data are loaded.  Time to calculate ANOVAs.')
+  print('Note: this will take awhile if your data are big. You will receive updates on how far it has progressed through all the pairwise ANOVA calculations.')
+  print('Luckily, you only need to do this once.')
+  
+  if(numSamples == 1) {
+    # There's only one sample.  Set ANOVA q-values to NA
+    df_sum = df_sum %>% 
+      mutate_(.dots = setNames(NA, paste0(df$tissue[1], '_q')))
+  } else {
+    
+    source('run_anovas.R')
+    # (6) Calculate pairwise ANOVAs 
+    anovas2 = run_anovas(df, 2, data_gene_id)
+    
+    # merge ANOVAs
+    df_sum = df_sum %>% 
+      left_join(anovas2, by = setNames(data_gene_id, data_gene_id))
+    
+    if(numSamples > 2) { 
+      # (7) Calculate ANOVAs for all samples
+      anovasAll = run_anovas(df, numSamples, data_gene_id)
+    }
+    
+    # merge ANOVAs
+    df_sum = df_sum %>% 
+      left_join(anovasAll, by = setNames(data_gene_id, data_gene_id))
+  }
+  
+  
+  
+  # (8) merge ontology terms, expression data, and ANOVAs --------------------------------
+  
+  # Check that merging will work.
+  num_nonmatch = length(setdiff(df_sum[[data_gene_id]], go[[go_gene_id]]))
+  
+  if(num_nonmatch > 0){
+    warning(paste0("Note: ", num_nonmatch, " genes within your dataset are missing within the ontology dataset. 
+These genes will have their ontology terms listed as missing."))
+  }
+  
+  # merge ont terms + expression data
+  df_sum = df_sum %>% left_join(go, by = setNames(go_gene_id, data_gene_id))
+  
+  
+  # (9) export ------------------------------------------------------------------
   
   # save the necessary variables
   saveRDS(go_terms, paste0(export_dir, 'go_terms.rds'))
-  saveRDS(df, paste0(export_dir, 'expr_db.rds'))
+  saveRDS(df_sum, paste0(export_dir, 'expr_db.rds'))
   
-  return(list(go_terms = go_terms, df = df))
+  return(list(go_terms = go_terms, df = df_sum))
   
   print('data loaded! starting Shiny app')
 }
 
 
+
+
+# If a column name has a space in it, replace it with a period.
+# csv.read will replace any spaces with .
+replace_space = function (var_name) {
+  str_replace_all(var_name, ' ', '.')
+}
 
 
