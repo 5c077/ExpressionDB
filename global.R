@@ -28,15 +28,20 @@ data_file = 'sample_data.csv'
 go_file = 'sample_ontologies.csv'
 data_dir = 'data/' # location where the data are stored
 
+data_gene_id = 'gene'
+go_gene_id = 'gene'
+go_gene_descrip = 'gene_description'
+ont_var = 'GO'
+
 # Create lookup table for all the tissues in your samples
 # List of tissues; add tissue names here. Example shown!
-tissueList = list('pancreas' = 'pancreas', 'liver'='liver', 'kidney'='kidney')
+tissueList = list('liver'='liver', 'spleen'='spleen')
 
-allTissues = c('pancreas', 'liver', 'kidney')
+allTissues = c('liver', 'spleen')
 
 # These are the tissues that will be selected initially -- when the application first starts up.
-selTissues = c('pancreas', 'liver', 'kidney')
-abbreviations = c('PAN', 'LIV', 'KID')
+selTissues = c('liver', 'spleen')
+sample_vars = c('LV', 'SPL')
 
 
 # [2] Import required libraries -----------------------------------------------
@@ -72,12 +77,19 @@ pk = lapply(libraries, function(x) library(x, character.only = TRUE))
 
 # [3] Import user-specified data set -----------------------------
 
+# Check if prep_data has already been called.
 if(length(setdiff(c('go_terms.rds', 'expr_db.rds'), list.files(path = data_dir))) > 0) {
   source('prep_data.R')
   
   # If the data hasn't been converted to an R data object, run the prep_data script
   imported_data = prep_data(data_file = paste0(data_dir, data_file), 
                             go_file = paste0(data_dir, go_file),
+                            sample_vars = sample_vars,
+                            data_gene_id = data_gene_id,
+                            go_gene_id = go_gene_id,
+                            go_gene_descrip = go_gene_descrip,
+                            ont_var = ont_var,
+                            entrez_link = entrez_link,
                             export_dir = data_dir)
   
   data = imported_data$df
