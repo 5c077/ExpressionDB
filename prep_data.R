@@ -116,6 +116,8 @@ prep_data = function(data_file, go_file,
     stop('Check that `sample_vars` within `global.R` match the column names within `data_file`.')
   }
   
+  print('Data loaded. Let the fun begin.')
+  
   # calculate values for expression data --------------------------------------------------
   # convert the data frame to a long format
   # assumptions: there are one columns, specified by `data_gene_id` and `data_transcript`.
@@ -129,6 +131,7 @@ prep_data = function(data_file, go_file,
   # Calculate the number of unique samples (e.g. Liver + Spleen)
   numSamples = length(unique(df$tissue))
   
+  print('Calculating average expression per sample.')
   # (5) Calculate average and standard deviation for the samples
   df_sum = df %>% 
     group_by_(data_gene_id, 'tissue') %>% 
@@ -136,7 +139,7 @@ prep_data = function(data_file, go_file,
               expr = mean(expr))
   
   # ANOVAs --------------------------------------------------------------------------
-  print('Data are loaded.  Time to calculate ANOVAs.')
+  print('Time to calculate ANOVAs.')
   print('Note: this will take awhile if your data are big. You will receive updates on how far it has progressed through all the pairwise ANOVA calculations.')
   print('Luckily, you only need to do this once.')
   
@@ -157,11 +160,11 @@ prep_data = function(data_file, go_file,
     if(numSamples > 2) { 
       # (7) Calculate ANOVAs for all samples
       anovasAll = run_anovas(df, numSamples, data_gene_id)
+      
+      # merge ANOVAs
+      df_sum = df_sum %>% 
+        left_join(anovasAll, by = setNames(data_gene_id, data_gene_id))
     }
-    
-    # merge ANOVAs
-    df_sum = df_sum %>% 
-      left_join(anovasAll, by = setNames(data_gene_id, data_gene_id))
   }
   
   
