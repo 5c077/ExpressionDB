@@ -33,7 +33,7 @@ filterData <- reactive({
   # Generate key for muscles
   muscleSymbols = plyr::mapvalues(selMuscles,
                                   from = allTissues,
-                                  to = abbreviations,
+                                  to = sample_vars,
                                   warn_missing = FALSE)
   
   
