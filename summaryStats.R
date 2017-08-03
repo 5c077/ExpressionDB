@@ -26,7 +26,7 @@ output$maxExpr <- renderInfoBox({
     maxGenes = paste0("in ", length(iMax),
                       " different genes")
   } else {
-    maxTrans = filteredData$shortName[iMax]
+    maxTrans = filteredData[[data_gene_id]][iMax]
     maxTissue = filteredData$tissue[iMax]
     maxGenes = paste0(maxTrans, " (", maxTissue, ")")
   }
