@@ -46,35 +46,51 @@ filterData <- reactive({
   # you'll find only genes w/ both the name Myod1 and kinase as an ontology (which doesn't exist).
   # To switch this to an OR relationship, combine the geneInput and ont with an '|'.
   
-  basic_filter = function(df) {
+  basic_filter = function(df, qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) {
     df %>% 
       select_("-dplyr::contains('_q')", q = qCol) %>% 
-      filter(tissue %in% selMuscles) %>%    # muscles
+      filter(tissue %in% muscleSymbols) %>%    # muscles
       filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
       filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
     
   }
   
+  filter_gene = function(df, filteredDF) {
+    df %>% filter_(
+    paste0(data_gene_id, "%in%",  filteredDF, "[['", data_gene_id, "']]")
+    )
+  }
+  
+  
+  filter_expr = function(filtered) {
+    filtered %>%
+      filter(expr <= input$maxExprVal,
+             expr >= input$minExprVal) %>% 
+      select_(data_gene_id)
+    
+  }
+  
+  
   # Check if q-value filtering is turned on
   if(input$adv == FALSE & qCol %in% colnames(data)) {
     filtered = data %>% 
-      basic_filter()
+      basic_filter(qCol, selMuscles, data_gene_id, geneInput, ont_var, ont)
     
     
   }  else if (input$adv == FALSE) {
     filtered = data %>% 
-      basic_filter() %>%     
+      basic_filter(qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) %>%     
       mutate(q = NA)
     
   } else if(qCol %in% colnames(data)){
     # Check if the q values exist in the db.
     filtered = data %>% 
-      basic_filter() %>% 
+      basic_filter(qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) %>% 
       filter(q < input$qVal)
     
   } else {
     filtered = data %>% 
-      basic_filter() %>% 
+      basic_filter(qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) %>% 
       mutate(q = NA)
   }
   
@@ -90,15 +106,13 @@ filterData <- reactive({
       # Two selected muscles for comparison filtered above.
       
       # Filter on expression: find tissues with any values within the range.
-      filteredTranscripts = filtered %>%
-        filter(expr <= input$maxExprVal,
-               expr >= input$minExprVal) %>% 
-        select(transcript)
+      # Necessary to do a 2 stage filter to capture any transcripts with values within range for ANY tissue (not all)
+      filteredTranscripts = filter_expr(filtered)
       
       filtered = filtered %>% 
-        filter(transcript %in% filteredTranscripts$transcript) %>%  # Filter
-        select(transcript = transcriptLink, gene = geneLink, 
-               tissue, expr, q, transcriptName = transcript, geneSymbol = gene) %>% 
+        filter_gene(filteredTranscripts) %>%  # Filter
+        # select(gene = geneLink, 
+               # tissue, expr, q, transcriptName = transcript, geneSymbol = gene) %>% 
         mutate(expr = ifelse(expr == 0, 0.0001, expr) # Correction so don't divide by 0. 
         ) 
       
@@ -114,7 +128,7 @@ filterData <- reactive({
                  logQ = -log10(q))
         
       } else {
-        filtered = data.table(id = 0, name = 'no data', FC = 0, logFC = 0, logQ = 0, geneSymbol = NA, transcriptName = NA)
+        filtered = data.table(id = 0, name = 'no data', FC = 0, logFC = 0, logQ = 0)
       }
       
     } else if(input$ref != 'none') {
@@ -125,11 +139,8 @@ filterData <- reactive({
       
       # -- Filter on expr change --
       # Check to make sure that expression filtering is on.  Otherwise, don't filter.
-      filteredTranscripts = filtered %>%
-        filter(expr <= input$maxExprVal,
-               expr >= input$minExprVal) %>% 
-        select(transcript)
-      
+      filteredTranscripts = filter_expr(filtered)
+        
       
       # -- Filter on fold change --
       # Running last since it's kind of annoying. 
@@ -139,35 +150,32 @@ filterData <- reactive({
       # Pull out the expression values for the selected muscles
       relExpr = filtered %>% 
         filter(tissue == input$ref) %>% 
-        select(transcript, relExpr = expr)
+        select_(data_gene_id, relExpr = 'expr')
       
       # Figuring out which transcripts meet the fold change conditions.
       filteredFC = left_join(filtered, relExpr,         # Safer way: doing a many-to-one merge in:
-                             by = c('transcript')) %>% 
+                             by = setNames(data_gene_id, data_gene_id)) %>% 
         mutate(`fold change`= expr/relExpr) %>%         # calc fold change
         filter(`fold change` >= input$foldChange)       # filter FC
       
       # Select the transcripts where at least one tissue meets the conditions.
       filtered = filtered %>% 
-        filter(transcript %in% filteredTranscripts$transcript &
-                 transcript %in% filteredFC$transcript
-        )
+        filter_gene(filteredTranscripts) %>% 
+        filter_gene(filteredFC)
+      
     } else {
       # -- Case 3: just filter on expression. --
-      filteredTranscripts = filtered %>%
-        filter(expr <= input$maxExprVal,
-               expr >= input$minExprVal) %>% 
-        select(transcript)
+      filteredTranscripts = filter_expr(filtered)
       
       
       # Select the transcripts where at least one tissue meets the conditions.
       filtered = filtered %>% 
-        filter(transcript %in% filteredTranscripts$transcript)
+        filter_gene(filteredTranscripts)
       
     }
   }
   
-  
+  print(filtered)
   return(filtered)
 })
 
