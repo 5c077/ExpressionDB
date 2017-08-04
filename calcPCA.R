@@ -1,17 +1,18 @@
 calcPCA <- reactive({
   filteredData = filterData() %>% 
-    select(transcript, gene, tissue, expr) %>% 
+    select_(data_gene_id, 'tissue', 'expr') %>% 
     spread(tissue, expr)
   
   geneNames = filteredData %>% 
-    select(transcript, gene)
+    select_(data_gene_id)
   
-  filteredData  = filteredData %>% 
-    select(-transcript, -gene)
+  pca_data  = filteredData %>% 
+    ungroup() %>% 
+    select_(paste0('-', data_gene_id))
   
-  PCA = prcomp(filteredData, scale = TRUE, center = TRUE)
+  PCA = prcomp(pca_data, scale = TRUE, center = TRUE)
   
-  PCA$x = cbind(geneNames, PCA$x)
+  PCA$x = bind_cols(geneNames, data.frame(PCA$x))
   
   return(PCA)
 })
