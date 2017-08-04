@@ -84,8 +84,8 @@ output$plot1 <- renderPlot({
       geom_segment(aes(x = tissue,
                        xend = tissue,
                        y = expr - sem, yend = expr + sem),
-                   size = 1.5,
-                   colour = grey60K, alpha = 0.4) +
+                   size = 2.,
+                   colour = grey60K, alpha = 0.3) +
       # points
       geom_point(fill = dot_color,
                  size = 4, colour = grey90K, 
