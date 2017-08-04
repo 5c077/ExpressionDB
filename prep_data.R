@@ -3,13 +3,13 @@
 # prep_data is called by global.R once initially to set up the data for use within the Shiny app.
 # # It does the following things:
 # 1) imports a gene ontology look up table
-# 2) finds unique ontology terms (for use in the app to search by ontology term)
-# 3) creates links to Entrez Gene websites for every gene, if not already specified
-# 4) imports gene expression data
-# 5) calculates average and standard deviation for expression data for each sample type (e.g. Liver tissue)
-# 6) calculates pairwise ANOVAs to detect significant differences between pairs of samples (e.g. Liver and Spleen)
-# 7) calculates ANOVAs for all the samples
-# 8) merges expression data with ontologies and ANOVAs
+# 2) creates links to Entrez Gene websites for every gene, if not already specified
+# 3) imports gene expression data
+# 4) calculates average and standard deviation for expression data for each sample type (e.g. Liver tissue)
+# 5) calculates pairwise ANOVAs to detect significant differences between pairs of samples (e.g. Liver and Spleen)
+# 6) calculates ANOVAs for all the samples
+# 7) merges expression data with ontologies and ANOVAs
+# 8) finds unique ontology terms that are within the dataset (for use in the app to search by ontology term)
 # 9) saves everything into an RMD file for later use 
 
 # -- checks performed --
@@ -66,16 +66,13 @@ prep_data = function(data_file, go_file,
   
   
   
-  # (2) pull unique ontology terms
-  go_terms = go %>% distinct_(ont_var) %>% pull(ont_var)
-  
   
   go = go %>% group_by_(go_gene_id, go_gene_descrip, entrez_var) %>%
     # collapse gene ontologies into a nested structure, with
     # a single row for each transcript and an embedded list of 
     # ontology terms
     summarise_(GO = paste0('list(unique(setdiff(', ont_var, ', "")))')) %>% 
-    # (3) create URLs for links to Entrez-Gene
+    # (2) create URLs for links to Entrez-Gene
     # If they're already defined in the data frame, ignore.
     mutate(
       # geneLink = ifelse(all(is.na(geneLink)),
@@ -83,7 +80,7 @@ prep_data = function(data_file, go_file,
       #                                   go_gene_var, "</a>"), geneLink)
     )  
   
-  # (4) expression data import --------------------------------------------------
+  # (3) expression data import --------------------------------------------------
   df = read.csv(data_file, stringsAsFactors = FALSE) %>% 
     filter_(paste0('!is.na(',data_gene_id, ') & ', data_gene_id, '!= ""'))
   
@@ -132,10 +129,10 @@ prep_data = function(data_file, go_file,
   numSamples = length(unique(df$tissue))
   
   print('Calculating average expression per sample.')
-  # (5) Calculate average and standard deviation for the samples
+  # (4) Calculate average and standard deviation for the samples
   df_sum = df %>% 
     group_by_(data_gene_id, 'tissue') %>% 
-    summarise(std = sd(expr),
+    summarise(sem = sd(expr) / sqrt(length(expr)),
               expr = mean(expr))
   
   # ANOVAs --------------------------------------------------------------------------
@@ -150,7 +147,7 @@ prep_data = function(data_file, go_file,
   } else {
     
     source('run_anovas.R')
-    # (6) Calculate pairwise ANOVAs 
+    # (5) Calculate pairwise ANOVAs 
     anovas2 = run_anovas(df, 2, data_gene_id)
     
     # merge ANOVAs
@@ -158,7 +155,7 @@ prep_data = function(data_file, go_file,
       left_join(anovas2, by = setNames(data_gene_id, data_gene_id))
     
     if(numSamples > 2) { 
-      # (7) Calculate ANOVAs for all samples
+      # (6) Calculate ANOVAs for all samples
       anovasAll = run_anovas(df, numSamples, data_gene_id)
       
       # merge ANOVAs
@@ -169,7 +166,7 @@ prep_data = function(data_file, go_file,
   
   
   
-  # (8) merge ontology terms, expression data, and ANOVAs --------------------------------
+  # (7) merge ontology terms, expression data, and ANOVAs --------------------------------
   
   # Check that merging will work.
   num_nonmatch = length(setdiff(df_sum[[data_gene_id]], go[[go_gene_id]]))
@@ -182,6 +179,8 @@ These genes will have their ontology terms listed as missing."))
   # merge ont terms + expression data
   df_sum = df_sum %>% left_join(go, by = setNames(go_gene_id, data_gene_id))
   
+  # (8) pull unique ontology terms that are within the merged dataset
+  go_terms = df_sum %>% pull(ont_var) %>% unlist() %>% unique()
   
   # (9) export ------------------------------------------------------------------
   
