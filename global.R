@@ -32,6 +32,7 @@ data_gene_id = 'gene'
 go_gene_id = 'gene'
 go_gene_descrip = 'gene_description'
 ont_var = 'GO'
+entrez_var = 'geneLink'
 
 # Create lookup table for all the tissues in your samples
 # List of tissues; add tissue names here. Example shown!
@@ -89,6 +90,7 @@ if(length(setdiff(c('go_terms.rds', 'expr_db.rds'), list.files(path = data_dir))
                             go_gene_id = go_gene_id,
                             go_gene_descrip = go_gene_descrip,
                             ont_var = ont_var,
+                            entrez_var = entrez_var,
                             entrez_link = entrez_link,
                             export_dir = data_dir)
   
