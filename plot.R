@@ -4,7 +4,7 @@ theme_xOnly<- function(textSize) {
         axis.ticks = element_blank(),
         axis.text = element_text(size = textSize, color = grey60K),
         axis.text.y = element_text(vjust = 0.1),
-        axis.title.x = element_text(size = 19, color = grey60K),
+        axis.title.x = element_text(size = 19, color = grey60K), 
         axis.title.y = element_blank(), 
         legend.position="none",
         panel.border = element_rect(colour = grey90K, size = 0.25, fill = NA),
@@ -16,16 +16,13 @@ theme_xOnly<- function(textSize) {
         strip.background = element_blank()
   )
 }
-grey50k = '#414042'
+
 grey90K = '#414042'
 grey60K = '#808285'
 nPlots = 25
 
-cardColor = '#ad494a'
-skelColor = '#5254a3'
-smoothColor = '#bd9e39'
+dot_color = '#5254a3'
 
-cols = c(allTissues = skelColor)
 
 getPage <- reactive({
   page = (input$nextPage - input$prevPage)
@@ -48,12 +45,11 @@ output$plot1 <- renderPlot({
   
   filteredData = filterData()
   
-  # transcriptList = unique(filteredData$transcript)[1:nPlots]
-  transcriptList = unique(filteredData$transcript)[iBeg:iEnd]
+  transcriptList = unique(filteredData[[data_gene_id]])[iBeg:iEnd]
   
   data2Plot = filteredData %>% 
-    filter(transcript %in% transcriptList) %>% 
-    mutate(transFacet = paste0(gene, '(', transcript, ')')) # Merge names for more informative output.
+    filter_(paste0(data_gene_id, '%in% transcriptList')) %>% 
+    mutate(transFacet = paste0(gene, '()')) # Merge names for more informative output.
   
   numTissues = length(unique(data2Plot$tissue))
   
@@ -71,37 +67,34 @@ output$plot1 <- renderPlot({
     yLim = c(-0.1*maxExpr, maxExpr)
     
     
-    # bar plot
+    
+    # dot plot
     ggplot(data2Plot, aes(y = expr, x = tissue, 
                           label = round(expr, 1))) +
       
       coord_flip(ylim = yLim) +
       
-      scale_fill_manual(values = c(cardColor, cardColor, cardColor,
-                                   smoothColor, smoothColor, smoothColor, 
-                                   rep(skelColor, 11)),
-                        limits = allTissues) +
       
       # lollipops
       geom_segment(aes(x = tissue, 
                        xend = tissue,
                        y = 0, yend = expr), colour = grey90K,
-                   size = 0.1) +
+                   size = 0.2) +
       # error bars
-      geom_segment(aes(x = tissue, 
-                       xend = tissue,
-                       y = lb, yend = ub), 
-                   size = 1.5,
-                   colour = grey90K, alpha = 0.5) +
+      # geom_segment(aes(x = tissue, 
+      #                  xend = tissue,
+      #                  y = lb, yend = ub), 
+      #              size = 1.5,
+      #              colour = grey60K, alpha = 0.4) +
       # points
-      geom_point(aes(fill = tissue),
-        size = 4, colour = grey90K, 
+      geom_point(fill = dot_color,
+                 size = 4, colour = grey90K, 
                  stroke = 0.2, shape = 21) + 
-
+      
       geom_text(aes(x = tissue, y = 0), hjust = 1.1,
                 colour = grey60K) +
       
-
+      
       ylab('expression (FPKM)') + 
       facet_wrap(~transFacet) +
       theme_xOnly(textSize)
