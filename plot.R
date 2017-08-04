@@ -81,11 +81,11 @@ output$plot1 <- renderPlot({
                        y = 0, yend = expr), colour = grey90K,
                    size = 0.2) +
       # error bars
-      # geom_segment(aes(x = tissue, 
-      #                  xend = tissue,
-      #                  y = lb, yend = ub), 
-      #              size = 1.5,
-      #              colour = grey60K, alpha = 0.4) +
+      geom_segment(aes(x = tissue,
+                       xend = tissue,
+                       y = expr - sem, yend = expr + sem),
+                   size = 1.5,
+                   colour = grey60K, alpha = 0.4) +
       # points
       geom_point(fill = dot_color,
                  size = 4, colour = grey90K, 
