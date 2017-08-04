@@ -1,3 +1,62 @@
+# SELECT DATA.
+# Note: right now, if there's something in both the "gene" and "ont"
+# input boxes, they must BOTH be true (AND relationship).
+# For example, if you have gene = "Myod1" and ont = "kinase",
+# you'll find only genes w/ both the name Myod1 and kinase as an ontology (which doesn't exist).
+# To switch this to an OR relationship, combine the geneInput and ont with an '|'.
+
+basic_filter = function(df, qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) {
+  selNames = input$descrip
+  
+  if(is.null(selNames)) {
+    # no gene names to filter
+    filt = df %>% 
+      select_("-dplyr::contains('_q')", q = qCol) %>% 
+      filter(tissue %in% muscleSymbols) %>%    # muscles
+      filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
+      filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
+    
+    if(!is.null(input$geneInput)) {
+      #   # filter geneInput to only be those descriptions w/ those gene names
+      # updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = selNames)
+    }
+  } else {
+    filt =  df %>% 
+      select_("-dplyr::contains('_q')", q = qCol) %>% 
+      filter(tissue %in% muscleSymbols) %>%    # muscles
+      filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
+      filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
+    
+    # Run after filtering gene
+    if(!is.null(input$geneInput)) {
+      #   # filter geneInput to only be those descriptions w/ those gene names
+      # updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = selNames)
+    }
+    
+    filt = filt %>% filter_(paste0(go_gene_descrip,' %in% input$descrip'))   # gene names
+  }
+  
+  
+  return(filt)
+}
+
+
+
+filter_gene = function(df, filteredDF) {
+  filter_arg = paste0(data_gene_id, " %in% list('",  paste(filteredDF, collapse = "','"), "')")
+  
+  df %>% filter_(filter_arg)
+}
+
+
+filter_expr = function(filtered) {
+  filtered %>%
+    filter(expr <= input$maxExprVal,
+           expr >= input$minExprVal) %>% 
+    pull(data_gene_id)
+  
+}
+
 # filterData is a reactive function that takes no arguments, so it'll autoupdate when
 # the inputs change.
 filterData <- reactive({
@@ -5,6 +64,7 @@ filterData <- reactive({
   
   # Selectize GO input ------------------------------------------------------
   populateSelectize()
+  populateSelectize2()
   
   
   # Gene and muscle filtering -----------------------------------------------
@@ -40,62 +100,6 @@ filterData <- reactive({
   
   qCol = paste0(paste0(sort(muscleSymbols), collapse = '.'), '_q')
   
-  # SELECT DATA.
-  # Note: right now, if there's something in both the "gene" and "ont"
-  # input boxes, they must BOTH be true (AND relationship).
-  # For example, if you have gene = "Myod1" and ont = "kinase",
-  # you'll find only genes w/ both the name Myod1 and kinase as an ontology (which doesn't exist).
-  # To switch this to an OR relationship, combine the geneInput and ont with an '|'.
-  
-  basic_filter = function(df, qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) {
-    
-    
-    if(is.null(input$descrip)) {
-      # no gene names to filter
-      filt = df %>% 
-        select_("-dplyr::contains('_q')", q = qCol) %>% 
-        filter(tissue %in% muscleSymbols) %>%    # muscles
-        filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
-        filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
-      
-      if(!is.null(input$geneInput)) {
-        #   # filter geneInput to only be those descriptions w/ those gene names
-        updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = input$descrip)
-      }
-    } else {
-      filt =  df %>% 
-        select_("-dplyr::contains('_q')", q = qCol) %>% 
-        filter(tissue %in% muscleSymbols) %>%    # muscles
-        filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
-        filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
-      
-      if(!is.null(input$geneInput)) {
-        #   # filter geneInput to only be those descriptions w/ those gene names
-        updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = input$descrip)
-      }
-      
-      filt = filt %>% filter_(paste0(go_gene_descrip,' %in% input$descrip'))   # gene names
-    }
-    
-    
-    
-    return(filt)
-  }
-  
-  filter_gene = function(df, filteredDF) {
-    filter_arg = paste0(data_gene_id, " %in% list('",  paste(filteredDF, collapse = "','"), "')")
-    
-    df %>% filter_(filter_arg)
-  }
-  
-  
-  filter_expr = function(filtered) {
-    filtered %>%
-      filter(expr <= input$maxExprVal,
-             expr >= input$minExprVal) %>% 
-      pull(data_gene_id)
-    
-  }
   
   
   # Check if q-value filtering is turned on
