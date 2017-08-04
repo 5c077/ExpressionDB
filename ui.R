@@ -6,8 +6,15 @@ sidebar <- dashboardSidebar(
   # Search form for symbols
   sidebarSearchForm(label = "search symbol (Myod1)", "geneInput", "searchButton"),
   
+  # Search form for gene description
+  selectizeInput('descrip', label = 'search gene name', 
+                 choices = NULL, 
+                 multiple = TRUE, 
+                 options = list(maxOptions = 500,
+                                placeholder = 'search gene name',
+                                onInitialize = I('function() { this.setValue(""); }'))),
+  
   # Search form for ontology
-  # sidebarSearchForm(label = "search ontology (axon)", "GO", "searchButton"),
   selectizeInput('GO', label = 'search ontology', 
                  choices = NULL, 
                  multiple = FALSE, 

@@ -20,6 +20,7 @@ filterData <- reactive({
     ont = input$GO
   }
   
+  
   # For fold change, adding in the FC-selected muscle if it's not already in the list
   if(input$tabs == 'volcano') {# volcano plot     
     # Select 2 muscles from the user input.
@@ -47,12 +48,38 @@ filterData <- reactive({
   # To switch this to an OR relationship, combine the geneInput and ont with an '|'.
   
   basic_filter = function(df, qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) {
-    df %>% 
-      select_("-dplyr::contains('_q')", q = qCol) %>% 
-      filter(tissue %in% muscleSymbols) %>%    # muscles
-      filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
-      filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
     
+    
+    if(is.null(input$descrip)) {
+      # no gene names to filter
+      filt = df %>% 
+        select_("-dplyr::contains('_q')", q = qCol) %>% 
+        filter(tissue %in% muscleSymbols) %>%    # muscles
+        filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
+        filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
+      
+      if(!is.null(input$geneInput)) {
+        #   # filter geneInput to only be those descriptions w/ those gene names
+        updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = input$descrip)
+      }
+    } else {
+      filt =  df %>% 
+        select_("-dplyr::contains('_q')", q = qCol) %>% 
+        filter(tissue %in% muscleSymbols) %>%    # muscles
+        filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
+        filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
+      
+      if(!is.null(input$geneInput)) {
+        #   # filter geneInput to only be those descriptions w/ those gene names
+        updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = input$descrip)
+      }
+      
+      filt = filt %>% filter_(paste0(go_gene_descrip,' %in% input$descrip'))   # gene names
+    }
+    
+    
+    
+    return(filt)
   }
   
   filter_gene = function(df, filteredDF) {
@@ -112,7 +139,7 @@ filterData <- reactive({
       filtered = filtered %>% 
         filter_gene(filteredTranscripts) %>%  # Filter
         # select(gene = geneLink, 
-               # tissue, expr, q, transcriptName = transcript, geneSymbol = gene) %>% 
+        # tissue, expr, q, transcriptName = transcript, geneSymbol = gene) %>% 
         mutate(expr = ifelse(expr == 0, 0.0001, expr) # Correction so don't divide by 0. 
         ) 
       

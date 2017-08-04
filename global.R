@@ -36,7 +36,7 @@ entrez_var = 'geneLink'
 
 # Create lookup table for all the tissues in your samples
 # List of tissues; add tissue names here. Example shown!
-tissueList = list('liver'='liver', 'spleen'='spleen')
+tissueList = list('LV'='liver', 'SPL'='spleen')
 
 allTissues = c('liver', 'spleen')
 
@@ -97,11 +97,15 @@ if(length(setdiff(c('go_terms.rds', 'expr_db.rds'), list.files(path = data_dir))
   data = imported_data$df
   GOs = imported_data$go_terms
   
+  gene_names = data[[go_gene_descrip]]
+  
 } else {
   # If the prep script has already been run, load the saved data
   data = readRDS(paste0(data_dir, "expr_db.rds"))
   
   GOs = readRDS(paste0(data_dir, "go_terms.rds"))
+  
+  gene_names = data[[go_gene_descrip]]
 }
 
 
