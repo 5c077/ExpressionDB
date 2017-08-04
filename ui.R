@@ -113,13 +113,24 @@ body <- dashboardBody(
             fluidRow(column(2, fluidRow(actionButton("prevPage", label="", icon = icon("chevron-left")))),
                      column(4, fluidRow(h5('view next results'))),
                      column(2, 
-                            fluidRow(actionButton("nextPage", label="", icon = icon("chevron-right"))))),
+                            fluidRow(actionButton("nextPage", label="", icon = icon("chevron-right")))),
+                     # Download data button
+                     column(2,
+                            downloadButton('downloadPNG', label = '.png', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5("")),
+                     # Download data button
+                     column(2,
+                            downloadButton('downloadPDF', label = '.pdf', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5(""))
+            ),
             plotOutput("plot1", height = "1000px")),
     
     
     # -- Full table with mini-stats. --
     tabItem(tabName = "table",
-          
+            
             # valueBoxes of min, max, avg.
             fluidRow(
               infoBoxOutput("maxExpr", width = 4),
@@ -168,8 +179,8 @@ body <- dashboardBody(
                             plotOutput("pcaPlot", 
                                        click = "pcaDblclick",
                                        brush = brushOpts(
-                                        id = "pcaBrush",
-                                        resetOnNew = TRUE)),
+                                         id = "pcaBrush",
+                                         resetOnNew = TRUE)),
                             dataTableOutput("PCAload")),
                      column(4,
                             infoBoxOutput("PCAstats", width = 12),
