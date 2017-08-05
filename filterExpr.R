@@ -48,10 +48,19 @@ filterData <- reactive({
   basic_filter = function(df, qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) {
     selNames = input$descrip
     
+    # Check if q-column exists.  If not, set Q  = NA
+    if(qCol %in% colnames(df)){
+      filt = df %>% 
+        select_("-dplyr::contains('_q')", q = qCol)
+    } else {
+      filt = df %>% 
+        select_("-dplyr::contains('_q')") %>% 
+        mutate(q = NA)
+    }
+    
     if(is.null(selNames)) {
       # no gene names to filter
-      filt = df %>% 
-        select_("-dplyr::contains('_q')", q = qCol) %>% 
+      filt = filt %>% 
         filter(tissue %in% selMuscles) %>%    # muscles
         filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
         filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
@@ -61,8 +70,7 @@ filterData <- reactive({
         # updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = selNames)
       }
     } else {
-      filt =  df %>% 
-        select_("-dplyr::contains('_q')", q = qCol) %>% 
+      filt =  filt %>% 
         filter(tissue %in% selMuscles) %>%    # muscles
         filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
         filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
@@ -73,7 +81,9 @@ filterData <- reactive({
         # updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = selNames)
       }
       
-      filt = filt %>% filter_(paste0(go_gene_descrip,' %in% input$descrip'))   # gene names
+      filt = filt %>% 
+        filter_(paste0(go_gene_descrip,' %in% input$descrip'))   # gene names
+      
     }
     
     

@@ -34,7 +34,7 @@ run_anovas = function(geneExprData,
   combMusc = combn(sample_vars, n)
   
   # (4) loop over all combinations 
-  for (i in ncol(combMusc)) {
+  for (i in 1:ncol(combMusc)) {
     samples = combMusc[,i]
     print(paste0('Calculating ANOVAs between ', paste(samples, collapse = ' & ')))
     

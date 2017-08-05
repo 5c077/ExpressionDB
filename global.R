@@ -37,10 +37,10 @@ entrez_var = 'geneLink'
 # Create lookup table for all the tissues in your samples
 # List of tissues; add tissue names here. Example shown!
 # variable names of samples within your dataset
-sample_vars = c('LV', 'SPL')
+sample_vars = c('LV', 'SPL', 'HRT')
 
 # names you want displayed in the app. These should match the order of sample_vars
-sample_names = c('liver', 'spleen')
+sample_names = c('liver', 'spleen', 'heart')
 
 
 # [2] Import required libraries -----------------------------------------------
@@ -114,3 +114,4 @@ if(length(setdiff(c('go_terms.rds', 'expr_db.rds'), list.files(path = data_dir))
 
 # Set the maximum of the expression, for the limits on the expression widget.
 maxInit = max(data$expr)
+

@@ -48,8 +48,11 @@ output$plot1 <- renderPlot({
   transcriptList = unique(filteredData[[data_gene_id]])[iBeg:iEnd]
   
   data2Plot = filteredData %>% 
-    filter_(paste0(data_gene_id, '%in% transcriptList')) %>% 
-    mutate(transFacet = paste0(gene, '()')) # Merge names for more informative output.
+    filter_(paste0(data_gene_id, '%in% transcriptList'))
+  
+  # specify connection between sample_names and sample_vars
+  sample_labels = sample_names
+  names(sample_labels) = sample_vars
   
   numTissues = length(unique(data2Plot$tissue))
   
@@ -97,9 +100,9 @@ output$plot1 <- renderPlot({
       
       ylab('expression (FPKM)') +
       
-      scale_x_discrete(labels = sample_names) +
+      scale_x_discrete(labels = sample_labels) +
       
-      facet_wrap(~transFacet) +
+      facet_wrap(as.formula(paste0('~', data_gene_id))) +
       theme_xOnly(textSize)
   }
   
