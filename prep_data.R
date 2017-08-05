@@ -10,7 +10,8 @@
 # 6) calculates ANOVAs for all the samples
 # 7) merges expression data with ontologies and ANOVAs
 # 8) finds unique ontology terms that are within the dataset (for use in the app to search by ontology term)
-# 9) saves everything into an RMD file for later use 
+# 9) rounds all values
+# 10) saves everything into an RMD file for later use 
 
 # -- checks performed --
 # 1. check if column names have spaces; convert to periods (e.g. 'gene name' to 'gene.name')
@@ -31,7 +32,8 @@ prep_data = function(data_file, go_file,
                      ont_var = 'GO',
                      entrez_var = 'geneLink',
                      entrez_link = 'http://www.ncbi.nlm.nih.gov/gene/?term=',
-                     export_dir = 'data/') {
+                     export_dir = 'data/',
+                     num_digits = 2) {
   # Check inputs ------------------------------------------------------------
   # Spaces aren't allowed in column names; during import they'll be converted to periods.
   data_gene_id = replace_space(data_gene_id)
@@ -182,16 +184,25 @@ These genes will have their ontology terms listed as missing."))
   # (8) pull unique ontology terms that are within the merged dataset
   go_terms = df_sum %>% pull(ont_var) %>% unlist() %>% unique()
   
-  # (9) export ------------------------------------------------------------------
+  # (9) round values -------------------------------------------------------
+  df_sum = df_sum %>% 
+    mutate(expr = round(expr, num_digits)) %>% 
+    mutate_at(funs(signif(., 2)), .vars = vars(contains('_q')))
+  
+  # (10) export ------------------------------------------------------------------
   
   # save the necessary variables
   saveRDS(go_terms, paste0(export_dir, 'go_terms.rds'))
   saveRDS(df_sum, paste0(export_dir, 'expr_db.rds'))
   
+  
+  
   return(list(go_terms = go_terms, df = df_sum))
   
   print('data loaded! starting Shiny app')
 }
+
+
 
 
 

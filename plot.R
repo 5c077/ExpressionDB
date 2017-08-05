@@ -19,9 +19,6 @@ theme_xOnly<- function(textSize) {
 
 grey90K = '#414042'
 grey60K = '#808285'
-nPlots = 25
-
-dot_color = '#5254a3'
 
 
 getPage <- reactive({

@@ -32,15 +32,28 @@ data_gene_id = 'gene'
 go_gene_id = 'gene'
 go_gene_descrip = 'gene_description'
 ont_var = 'GO'
-entrez_var = 'geneLink'
 
 # Create lookup table for all the tissues in your samples
-# List of tissues; add tissue names here. Example shown!
+# List of tissues; add tissue names here. Example shown to match with sample_data.csv
 # variable names of samples within your dataset
 sample_vars = c('LV', 'SPL', 'HRT')
 
-# names you want displayed in the app. These should match the order of sample_vars
+# names you want displayed in the app. These must match the order of sample_vars.
 sample_names = c('liver', 'spleen', 'heart')
+# ********************** end of stuff you need to change **********************
+
+# Optional things to change -- mostly aesthetics
+
+# If you've already specified links to Entrez Gene website, specify its column here
+entrez_var = 'geneLink'
+
+# number of digits to display in expression values and q values. Q's displayed in scientific notation.
+num_digits = 2
+
+# number of plots to display in each page of the home page
+nPlots = 25
+# color of the dots on the dot plot of the home page.
+dot_color = '#5254a3'
 
 
 # [2] Import required libraries -----------------------------------------------
@@ -90,7 +103,8 @@ if(length(setdiff(c('go_terms.rds', 'expr_db.rds'), list.files(path = data_dir))
                             ont_var = ont_var,
                             entrez_var = entrez_var,
                             entrez_link = entrez_link,
-                            export_dir = data_dir)
+                            export_dir = data_dir,
+                            num_digits = num_digits)
   
   data = imported_data$df
   GOs = imported_data$go_terms
