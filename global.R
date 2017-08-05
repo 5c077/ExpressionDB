@@ -21,7 +21,7 @@
 
 
 # [1] User-specified options -----------------------------------------------
-
+# ********************** CHANGE THESE LINES **********************
 # specify the path to your custom .csv data frame. 'sample_data.csv' 
 # is an example data frame with sample data and all of the required fields.
 data_file = 'sample_data.csv'
@@ -36,13 +36,11 @@ entrez_var = 'geneLink'
 
 # Create lookup table for all the tissues in your samples
 # List of tissues; add tissue names here. Example shown!
-tissueList = list('LV'='liver', 'SPL'='spleen')
-
-allTissues = c('liver', 'spleen')
-
-# These are the tissues that will be selected initially -- when the application first starts up.
-selTissues = c('liver', 'spleen')
+# variable names of samples within your dataset
 sample_vars = c('LV', 'SPL')
+
+# names you want displayed in the app. These should match the order of sample_vars
+sample_names = c('liver', 'spleen')
 
 
 # [2] Import required libraries -----------------------------------------------

@@ -32,16 +32,9 @@ filterData <- reactive({
   } else { 
     selMuscles = input$muscles
   }
-  print(selMuscles)
-  
-  # Generate key for muscles
-  muscleSymbols = plyr::mapvalues(selMuscles,
-                                  from = allTissues,
-                                  to = sample_vars,
-                                  warn_missing = FALSE)
   
   
-  qCol = paste0(paste0(sort(muscleSymbols), collapse = '.'), '_q')
+  qCol = paste0(paste0(sort(selMuscles), collapse = '.'), '_q')
   
   
   
@@ -59,7 +52,7 @@ filterData <- reactive({
       # no gene names to filter
       filt = df %>% 
         select_("-dplyr::contains('_q')", q = qCol) %>% 
-        filter(tissue %in% muscleSymbols) %>%    # muscles
+        filter(tissue %in% selMuscles) %>%    # muscles
         filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
         filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
       
@@ -70,7 +63,7 @@ filterData <- reactive({
     } else {
       filt =  df %>% 
         select_("-dplyr::contains('_q')", q = qCol) %>% 
-        filter(tissue %in% muscleSymbols) %>%    # muscles
+        filter(tissue %in% selMuscles) %>%    # muscles
         filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
         filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
       

@@ -90,12 +90,15 @@ output$plot1 <- renderPlot({
       geom_point(fill = dot_color,
                  size = 4, colour = grey90K, 
                  stroke = 0.2, shape = 21) + 
-      
+      # label expression values
       geom_text(aes(x = tissue, y = 0), hjust = 1.1,
                 colour = grey60K) +
       
       
-      ylab('expression (FPKM)') + 
+      ylab('expression (FPKM)') +
+      
+      scale_x_discrete(labels = sample_names) +
+      
       facet_wrap(~transFacet) +
       theme_xOnly(textSize)
   }

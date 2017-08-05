@@ -24,8 +24,9 @@ sidebar <- dashboardSidebar(
   
   # -- Tissue filtering --
   checkboxGroupInput("muscles","sample type", inline = FALSE,
-                     choices = tissueList,
-                     selected = selTissues),
+                     choiceNames = sample_names,
+                     choiceValues = sample_vars,
+                     selected = sample_vars),
   
   # Conditional for advanced filtering options.
   checkboxInput("adv", "advanced filtering", value = FALSE),
@@ -48,7 +49,9 @@ sidebar <- dashboardSidebar(
         Filters by the increase in expression, 
                          relative to a single muscle tissue</div>"))),
     radioButtons("ref", label = "reference tissue:", 
-                 choices = c('none',tissueList), selected = "none"),
+                 choiceNames = c('none', sample_names), 
+                 choiceValues = c('none', sample_vars),
+                 selected = "none"),
     numericInput("foldChange", label = 'fold change threshold', min = 0, value = 1, step = 0.5, width="100%"),
     
     # -- q-value. --
