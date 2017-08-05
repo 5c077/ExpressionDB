@@ -2,7 +2,6 @@
 
 output$volcanoTable <- renderDataTable({
   filtered = filterData() %>% 
-    select(-transcriptName, -geneSymbol) %>% 
     mutate(FC = signif(FC, 3),
            logFC = signif(logFC, 3),
            logQ = signif(logQ, 3))
