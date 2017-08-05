@@ -2,10 +2,9 @@
 output$g1 = renderUI({
   
   # Pull out the names of the filtered genes.
-  selGenes = filterData() %>% 
-    mutate(fullName = paste0(gene, ' (', transcript, ')'))
+  selGenes = filterData()
   
-  selGenes = unique(as.character(selGenes$fullName)) # shortName is factorized...
+  selGenes = selGenes %>% distinct(data_gene_id) %>% pull()
   
   selectizeInput('compRef', label = 'ref. transcript',
                  choices = selGenes,
@@ -25,46 +24,46 @@ output$compPlot = renderPlot({
   iBeg = (pageNum)*nPlots + 1
   iEnd = (pageNum + 1)*nPlots
   
-        
-  # filter data
-  filteredData = filterData() %>% 
-    mutate(fullName = paste0(gene, ' (', transcript, ')'))
   
+  # filter data
+  filteredData = filterData()
   
   # pull out the data for the reference gene
   refGene = input$compRef
   
+  
   refExpr = filteredData %>% 
-    filter(fullName == refGene) %>% 
-    mutate(refExpr = expr) %>% 
+    filter_(paste0(data_gene_id, ' == refGene')) %>% 
+    rename(refExpr = expr) %>% 
+    ungroup() %>% 
     select(tissue, refExpr)
   
   # Combine the reference data with the normal data.
   # Remove the reference tissue.
   # Calculate the fold change
   filteredData = left_join(filteredData, refExpr, by = 'tissue') %>% 
-    filter(fullName != input$compRef) %>% 
+    filter_(paste0(data_gene_id, '!= input$compRef')) %>% 
     mutate(FC = expr / refExpr,
            logFC = log10(FC),
            logFC = ifelse(is.infinite(logFC), NA, logFC)) # correct for infinite values
   
-  
   # Calculate correlation coefficient ---------------------------------------
   
   # Splay outward
-  pairwise = spread(filteredData %>% select(tissue, transcript, expr, refExpr),
-                    transcript, expr) %>%
+  pairwise = filteredData %>% 
+    select_(data_gene_id, 'tissue', 'expr', 'refExpr') %>% 
+    spread_(data_gene_id, 'expr') %>%
     select(-tissue)
-
+  
   # Calculate correlation
   correl = data.frame(cor(pairwise)) %>%
     select(corr = refExpr)
-
+  
   correl = correl %>%
-    mutate(transcript = row.names(correl))
+    mutate(corr_name = row.names(correl))
   
   # Merge in with the master
-  filteredData = left_join(filteredData, correl, by = "transcript")
+  filteredData = left_join(filteredData, correl, by = setNames('corr_name', data_gene_id))
   
   # Calculate limits for the plot
   yMax = max(abs(filteredData$logFC), na.rm = TRUE)
@@ -72,50 +71,51 @@ output$compPlot = renderPlot({
   
   # Refactorize -------------------------------------------------------------
   
-  # Reverse tissue names
-  filteredData$tissue = factor(filteredData$tissue, levels = rev(levels(filteredData$tissue)))
-  
   if (input$sortBy == 'most') {
     orderNames = filteredData %>% 
       arrange(desc(corr)) # Sort by correlation coefficient, in descending order
     
-    orderNames = orderNames$fullName
+    orderNames = unique(orderNames[[data_gene_id]])
     
   } else if (input$sortBy == 'least') {
     orderNames = filteredData %>% 
       arrange(corr) # Sort by correlation coefficient, in ascending order
     
-    orderNames = orderNames$fullName
+    orderNames = unique(orderNames[[data_gene_id]])
   } else {
-    orderNames = sort(filteredData$fullName)
+    orderNames = sort(unique(filteredData[[data_gene_id]]))
   }
   
   
-  filteredData$fullName = factor(filteredData$fullName, orderNames)
+  filteredData[[data_gene_id]] = factor(filteredData[[data_gene_id]], orderNames)
   
   
   # Select just the transcripts that fit within the current page.
-  transcriptList = unique(filteredData$transcript)[iBeg:iEnd]
+  geneList = unique(filteredData[[data_gene_id]])[iBeg:iEnd]
   
   filteredData = filteredData %>% 
-    filter(transcript %in% transcriptList)
+    filter_(paste0(data_gene_id, '%in% geneList'))
   
   
   # Plot --------------------------------------------------------------------
+  numTissues = length(unique(filteredData$tissue))
+  
+  textSize = ifelse(numTissues <= 8, 16, 20 - numTissues/2)
+  
   
   ggplot(filteredData,
          aes(x = logFC, xend = 0, y = tissue, yend = tissue,
              fill = logFC)) +
     geom_segment(colour = grey90K, size = 0.25) +
     geom_vline(xintercept = 0, colour = grey90K, size = 0.25) +
-    geom_point(size = 4, colour = grey70K,
+    geom_point(size = 4, colour = grey60K,
                shape = 21) +
     scale_fill_gradientn(colours = brewer.pal(10, 'RdYlBu'),
                          limits = c(-yMax, yMax)) +
-    theme_xgrid() +
+    theme_xOnly(textSize) +
     theme(rect = element_rect(colour = grey90K, size = 0.25, fill = NA),
           panel.border = element_rect(colour = grey90K, size = 0.25, fill = NA)) +
-    facet_wrap(~fullName) +
+    facet_wrap(as.formula(paste0('~', data_gene_id))) +
     xlab('log(fold change)')
   
 })
