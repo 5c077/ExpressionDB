@@ -186,7 +186,7 @@ These genes will have their ontology terms listed as missing."))
   
   # (9) round values -------------------------------------------------------
   df_sum = df_sum %>% 
-    mutate(expr = round(expr, num_digits)) %>% 
+    mutate_at(round(., num_digits), .vars = c('expr', 'sem')) %>% 
     mutate_at(funs(signif(., 2)), .vars = vars(contains('_q')))
   
   # (10) export ------------------------------------------------------------------
