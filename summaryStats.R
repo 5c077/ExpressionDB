@@ -18,7 +18,7 @@ output$maxExpr <- renderInfoBox({
     summarise(max = max(expr))
   
   # Find maximum value and which tissues have that value.
-  maxVal= maxVal[[1]]
+  maxVal = maxVal[[1]]
   
   iMax = which(filteredData$expr == maxVal)
   
@@ -26,7 +26,7 @@ output$maxExpr <- renderInfoBox({
     maxGenes = paste0("in ", length(iMax),
                       " different genes")
   } else {
-    maxTrans = filteredData[[data_gene_id]][iMax]
+    maxTrans = filteredData[[data_unique_id]][iMax]
     maxTissue = filteredData$tissue[iMax]
     maxGenes = paste0(maxTrans, " (", maxTissue, ")")
   }
