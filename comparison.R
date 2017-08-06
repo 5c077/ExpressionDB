@@ -31,8 +31,6 @@ output$compPlot = renderPlot({
   
   # pull out the data for the reference gene
   refGene = input$compRef
-  print(refGene)
-  
   
   refExpr = filteredData %>% 
     filter_(paste0(data_unique_id, ' == refGene')) %>% 
