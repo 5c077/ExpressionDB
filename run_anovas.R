@@ -48,7 +48,7 @@ run_anovas = function(geneExprData,
     
     # select only the samples for this particular iteration
     anovas[,i] = calc_anova(geneExpr[tissue %in% samples], gene_var, sd_thresh)
-    colnames(anovas)[i] = paste(paste(samples, collapse = "-"), "q", sep="_")
+    colnames(anovas)[i] = paste(paste(samples, collapse = "."), "q", sep="_")
     
   }
   
