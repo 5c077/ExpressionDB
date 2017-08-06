@@ -8,20 +8,20 @@ output$table <- renderDataTable({
   
   # Remove cols not needed in the table.
   filtered = filtered %>% 
-    select(transcript = transcriptLink, gene = geneLink, tissue, expr, q)
-  
+    select_('url', go_gene_descrip, 'tissue', 'expr', 'q') %>% 
+    filter(!is.na(url))
   
   # Leftover from SQL implementation. 
   # filtered = collect(filtered) 
   
   # Provided there are rows in the data.table, convert to wide.
-  if(nrow(filtered) > 0){
+  if(nrow(filtered) > 0) {
     data.table::dcast(filtered, 
-                      transcript + gene + q ~ tissue, 
+                      ... ~ tissue, 
                       value.var = 'expr')
   }
 },  
-escape = c(-1,-2, -3),
+escape = c(-1,-2),
 selection = 'none', #! Temporarily turning off row selection.
 options = list(searching = FALSE, stateSave = TRUE,
                pageLength = 25,
@@ -29,7 +29,9 @@ options = list(searching = FALSE, stateSave = TRUE,
                  'function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         if (aData[0])
           $("td:eq(0)", nRow).css("color", "#293C97");
-          $("td", nRow).css("text-align", "center");
+          $("td", nRow).css("text-align", "left");
       }')
 )    
 )
+
+

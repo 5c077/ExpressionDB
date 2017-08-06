@@ -76,35 +76,40 @@ prep_data = function(data_file, go_file,
   
   
   
-  go = go %>% group_by_(go_merge_id, go_gene_descrip, entrez_var) %>%
+  go = go %>% 
+    group_by_(go_merge_id, go_gene_descrip, entrez_var) %>%
     # collapse gene ontologies into a nested structure, with
     # a single row for each transcript and an embedded list of 
     # ontology terms
-    summarise_(GO = paste0('list(unique(setdiff(', ont_var, ', "")))')) %>% 
-    # (2) create URLs for links to Entrez-Gene
-    # If they're already defined in the data frame, ignore.
-    mutate(
-      # geneLink = ifelse(all(is.na(geneLink)),
-      #                            paste0("<a href = '", entrez_link, go_merge_id,"' target = '_blank'>", 
-      #                                   go_gene_var, "</a>"), geneLink)
-    )  
+    summarise_(GO = paste0('list(unique(setdiff(', ont_var, ', "")))')) 
+  
+  # (2) create URLs for links to Entrez-Gene
+  make_html = function(url1, name,
+                       url2 = NULL,
+                       start = "<a href='",
+                       mid = "' target='_blank'>", end = "</a>") {
+    paste0(start, url1, url2, mid, name, end)
+  }
+  
+  if(all(is.na(go[[entrez_var]]))) {
+    # doesn't exist; create it
+    go = go %>%
+      mutate_(url = paste0('make_html(', entrez_var, ',', go_merge_id, ')'))
+  } else {
+    # If they're already (partially) defined in the data frame, convert into HTML
+    go = go %>%
+      mutate_(url = paste0('make_html(url1 = entrez_link, url2 =', go_merge_id, ', name = ', go_merge_id, ')'))
+  }
+  
+  # remove the original `entrez_var`; replaced by url
+  go = go %>%
+    select_(paste('-', entrez_var))
   
   # (3) expression data import --------------------------------------------------
   df = read.csv(data_file, stringsAsFactors = FALSE) %>% 
     filter_(paste0('!is.na(', data_unique_id, ') & ', data_unique_id, '!= ""'))
   
   # -- checks --
-  # check that all columns are numeric
-  if(df %>% 
-     select_(paste0('-', data_unique_id), paste0('-', data_merge_id)) %>% 
-     summarise_all(funs(sum(!is.numeric(.)))) %>% 
-     t() %>% 
-     sum() != 0) {
-    stop("`data_file` contains more than one non-numeric columns. Please input only the gene id and numeric expression data.")
-  }
-  
-  
-  
   df_cols = colnames(df) 
   
   # Check unique column is within the data. 
@@ -129,6 +134,17 @@ prep_data = function(data_file, go_file,
   
   # Calculate the number of unique samples (e.g. Liver + Spleen)
   numSamples = length(expr_cols)
+  
+  # check that all columns are numeric
+  if(df %>% 
+     select_(paste0('-', data_unique_id), paste0('-', data_merge_id)) %>% 
+     summarise_all(funs(sum(!is.numeric(.)))) %>% 
+     t() %>% 
+     sum() != 0) {
+    stop("`data_file` contains more than one non-numeric columns. Please input only the gene id and numeric expression data.")
+  }
+  
+  
   
   
   if(!setequal(sample_vars, expr_cols)) {
@@ -220,7 +236,8 @@ These genes will have their ontology terms listed as missing."))
   # (9) round values -------------------------------------------------------
   df_sum = df_sum %>% 
     mutate_at(funs(round(., num_digits)), .vars = c('expr', 'sem')) %>%
-    mutate_at(funs(signif(., num_digits)), .vars = vars(contains('_q')))
+    mutate_at(funs(signif(., num_digits)), .vars = vars(contains('_q'))) %>% 
+    ungroup()
   
   # if data_merge_id != data_unique_id, drop merge_id
   if(data_merge_id != data_unique_id) {

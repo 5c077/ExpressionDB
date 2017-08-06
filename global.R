@@ -55,6 +55,7 @@ sample_names = c('liver', 'spleen', 'heart')
 
 # If you've already specified links to Entrez Gene website, specify its column here
 entrez_var = 'geneLink'
+entrez_link = 'http://www.ncbi.nlm.nih.gov/gene/?term='
 
 # number of digits to display in expression values and q values. Q's displayed in scientific notation.
 num_digits = 2

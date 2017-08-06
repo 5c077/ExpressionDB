@@ -35,9 +35,9 @@ filterData <- reactive({
   
   
   qCol = paste0(paste0(sort(selMuscles), collapse = '.'), '_q')
+
   
-  
-  
+    
   # SELECT DATA.
   # Note: right now, if there's something in both the "gene" and "ont"
   # input boxes, they must BOTH be true (AND relationship).
@@ -125,6 +125,7 @@ filterData <- reactive({
       basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) %>% 
       filter(q < input$qVal)
     
+    
   } else {
     filtered = data %>% 
       basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) %>% 
@@ -148,7 +149,7 @@ filterData <- reactive({
       
       filtered = filtered %>% 
         filter_gene(filteredTranscripts) %>%  # Filter
-        select_(entrez_var, 'tissue', 'expr', 'q')%>%
+        select(url, tissue, expr, q)%>%
         mutate(expr = ifelse(expr == 0, 0.0001, expr) # Correction so don't divide by 0. 
         ) 
       
