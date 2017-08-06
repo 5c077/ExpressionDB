@@ -5,7 +5,6 @@ output$volcanoTable <- renderDataTable({
   
   if(!is.null(filtered)){ # check object exists
     if(! 'expr' %in% colnames(filtered)) { # checks if the data has finished being transformed to a wide format
-      print('no expr')
       filtered = filtered %>% 
         mutate(FC = signif(FC, 3),
                logFC = signif(logFC, 3),
