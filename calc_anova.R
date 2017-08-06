@@ -8,7 +8,8 @@ calc_anova = function(geneExpr, gene_var, sd_thresh) {
   # pre-populate empty matrix:
   # 1 x number of genes
   
-  anova_data = data.frame(p = rep(NA, length(genes)), obs = rep(NA, length(genes)))
+  anova_data = data.frame(p = rep(NA, length(genes)))
+  # , obs = rep(NA, length(genes)))
   
   # loop over each transcript/gene
   for(i in 1:length(genes)) {
@@ -30,7 +31,6 @@ calc_anova = function(geneExpr, gene_var, sd_thresh) {
       anova_val =  NA
     }
     
-    anova_data[i,'obs'] = genes[i]
     anova_data[i, 'p'] = anova_val
     
     # Display every 10,000 transcripts how many calcs have been done.
