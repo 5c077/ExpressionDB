@@ -52,14 +52,17 @@ num_digits = 2
 
 # number of plots to display in each page of the home page
 nPlots = 25
+nObsHeat = 100 # number of observations in heatmap
+
 # color of the dots on the dot plot of the home page.
 dot_color = '#5254a3'
+heatmap_palette = magma(n = 256) # series of hexadecimal colors for heatmap color scale
 
 
 # [2] Import required libraries -----------------------------------------------
 
 libraries = c('dplyr', 'tidyr', 'shiny', 'shinydashboard', 'stringr',
-              'DT', 'd3heatmap', 'ggvis', 'ggplot2', 'dtplyr',
+              'DT', 'heatmaply', 'ggvis', 'ggplot2', 'dtplyr',
               'data.table', 'RColorBrewer')
 
 # Built using: 

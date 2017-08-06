@@ -221,7 +221,7 @@ body <- dashboardBody(
                      column(2, 
                             fluidRow(actionButton("nextPageHeat", label="", icon = icon("chevron-right"))))),
             fluidRow(column(7,
-                            d3heatmapOutput("heatmap",
+                            plotlyOutput("heatmap",
                                             width = 500,
                                             height = 550)),
                      column(5,
