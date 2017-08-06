@@ -33,3 +33,66 @@ output$downloadPDF = downloadHandler(
   }
 )
 
+output$downloadPNG_v = downloadHandler(
+  filename = function() {
+    paste('volcano_', Sys.Date(), '.png', sep='')
+  },
+  content = function(file) {
+    
+    ggsave(file)
+  }
+)
+
+output$downloadPDF_v = downloadHandler(
+  filename = function() {
+    paste('volcano_', Sys.Date(), '.pdf', sep='')
+  },
+  content = function(file) {
+    
+    ggsave(file)
+  }
+)
+
+output$downloadPNG_c = downloadHandler(
+  filename = function() {
+    paste('comparison_', Sys.Date(), '.png', sep='')
+  },
+  content = function(file) {
+    
+    ggsave(file)
+  }
+)
+
+output$downloadPDF_c = downloadHandler(
+  filename = function() {
+    paste('comparison_', Sys.Date(), '.pdf', sep='')
+  },
+  content = function(file) {
+    
+    ggsave(file)
+  }
+)
+
+output$downloadPNG_p = downloadHandler(
+  filename = function() {
+    paste('pca_', Sys.Date(), '.png', sep='')
+  },
+  content = function(file) {
+    
+    ggsave(file)
+  }
+)
+
+output$downloadPDF_p = downloadHandler(
+  filename = function() {
+    paste('pca_', Sys.Date(), '.pdf', sep='')
+  },
+  content = function(file) {
+    
+    ggsave(file)
+  }
+)
+
+
+
+

@@ -124,12 +124,12 @@ body <- dashboardBody(
                      column(4, fluidRow(h5('view next results'))),
                      column(2, 
                             fluidRow(actionButton("nextPage", label="", icon = icon("chevron-right")))),
-                     # Download data button
+                     # Download png button
                      column(2,
                             downloadButton('downloadPNG', label = '.png', 
                                            class = 'btn btn-lg active btn-inverted hover btn-inverted'),
                             h5("")),
-                     # Download data button
+                     # Download pdf button
                      column(2,
                             downloadButton('downloadPDF', label = '.pdf', 
                                            class = 'btn btn-lg active btn-inverted hover btn-inverted'),
@@ -145,7 +145,6 @@ body <- dashboardBody(
             fluidRow(
               infoBoxOutput("maxExpr", width = 4),
               infoBoxOutput("avgExpr", width = 4),
-              # infoBoxOutput("minExpr", width = 4),
               
               # Download data button
               column(1,
@@ -168,7 +167,17 @@ body <- dashboardBody(
     tabItem(tabName = "volcano", 
             fluidRow(h4('Select two samples to compare.')),
             fluidRow(column(4, uiOutput('m1')),
-                     column(4, uiOutput('m2'))),
+                     column(4, uiOutput('m2')),
+                     # Download png button
+                     column(2,
+                            downloadButton('downloadPNG_v', label = '.png', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5("")),
+                     # Download pdf button
+                     column(2,
+                            downloadButton('downloadPDF_v', label = '.pdf', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5(""))),
             fluidRow(plotOutput("volcanoPlot", 
                                 dblclick = "volcanoDblclick",
                                 brush = brushOpts(
@@ -192,22 +201,43 @@ body <- dashboardBody(
                                          id = "pcaBrush",
                                          resetOnNew = TRUE)),
                             dataTableOutput("PCAload")),
-                     column(4,
+                     column(3,
                             infoBoxOutput("PCAstats", width = 12),
                             helpText('Zoom on a region by highlighting the graph and double clicking'),
                             helpText('Highlight a point on the graph by clicking a row in the table'),
-                            dataTableOutput("PCApts")))),
+                            dataTableOutput("PCApts")),
+                     # Download png button
+                     column(2,
+                            downloadButton('downloadPNG_p', label = '.png', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5("")),
+                     # Download pdf button
+                     column(2,
+                            downloadButton('downloadPDF_p', label = '.pdf', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5(""))
+            )),
     
     
     # -- Compare genes --
     tabItem(tabName = "compare",
             fluidRow(column(3, uiOutput('g1')), # selectize input to select the ref. tissue
-                     column(6, radioButtons("sortBy", label = 'sort by',
+                     column(5, radioButtons("sortBy", label = 'sort by',
                                             choices = c('most similar' = 'most', 
                                                         'least similar' = 'least', 
                                                         'alphabetically' = 'alpha'), 
                                             selected = 'most',
-                                            inline = TRUE))),
+                                            inline = TRUE)),
+                     # Download png button
+                     column(2,
+                            downloadButton('downloadPNG_c', label = '.png', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5("")),
+                     # Download pdf button
+                     column(2,
+                            downloadButton('downloadPDF_c', label = '.pdf', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5(""))),
             fluidRow(column(2, fluidRow(actionButton("prevComp", label="", icon = icon("chevron-left")))),
                      column(4, fluidRow(h5('view next results'))),
                      column(2, 
@@ -222,8 +252,8 @@ body <- dashboardBody(
                             fluidRow(actionButton("nextPageHeat", label="", icon = icon("chevron-right"))))),
             fluidRow(column(7,
                             plotlyOutput("heatmap",
-                                            width = 500,
-                                            height = 550)),
+                                         width = 500,
+                                         height = 550)),
                      column(5,
                             selectInput("scaleHeat", label = "heat map scaling",
                                         choices = c("none" = "none", "by row" = "row", 
