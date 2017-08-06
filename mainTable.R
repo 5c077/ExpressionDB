@@ -9,10 +9,8 @@ output$table <- renderDataTable({
   # Remove cols not needed in the table.
   filtered = filtered %>% 
     select_('url', go_gene_descrip, 'tissue', 'expr', 'q') %>% 
-    filter(!is.na(url))
-  
-  # Leftover from SQL implementation. 
-  # filtered = collect(filtered) 
+    rename(gene = url) %>% 
+    rename_(.dots = setNames(go_gene_descrip, 'description'))
   
   # Provided there are rows in the data.table, convert to wide.
   if(nrow(filtered) > 0) {
@@ -22,7 +20,7 @@ output$table <- renderDataTable({
   }
 },  
 escape = c(-1,-2),
-selection = 'none', #! Temporarily turning off row selection.
+selection = 'none', #! No row selection.
 options = list(searching = FALSE, stateSave = TRUE,
                pageLength = 25,
                rowCallback = JS(
