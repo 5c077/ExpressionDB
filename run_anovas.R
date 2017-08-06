@@ -33,15 +33,23 @@ run_anovas = function(geneExprData,
   # (3) Find all combinations of samples
   combMusc = combn(sample_vars, n)
   
+  # (4) Prep result table
+  num_obs = geneExpr %>% distinct_(gene_var) %>% nrow()
+  anovas = matrix(data = NA, nrow = num_obs, ncol = ncol(combMusc))
+  
+  # add in a column with the gene name.
+  anovas = data.frame(anovas) %>% bind_cols(data.frame(obs = geneExpr[[gene_var]][1:num_obs])) %>%
+    rename_(.dots = setNames('obs', gene_var))
+  
   # (4) loop over all combinations 
   for (i in 1:ncol(combMusc)) {
     samples = combMusc[,i]
     print(paste0('Calculating ANOVAs between ', paste(samples, collapse = ' & ')))
     
     # select only the samples for this particular iteration
-    anovas = calc_anova(geneExpr[tissue %in% samples], gene_var, sd_thresh) %>% 
-      rename_(.dots = setNames('q', paste0(paste(samples, collapse = '.'), '_q'))) %>% 
-      rename_(.dots = setNames('obs', gene_var))
+    anovas[,i] = calc_anova(geneExpr[tissue %in% samples], gene_var, sd_thresh)
+    colnames(anovas)[i] = paste(paste(samples, collapse = "-"), "q", sep="_")
+    
   }
   
   return(anovas)
