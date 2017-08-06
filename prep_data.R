@@ -3,12 +3,12 @@
 # prep_data is called by global.R once initially to set up the data for use within the Shiny app.
 # # It does the following things:
 # 1) imports a gene ontology look up table
-# 2) creates links to Entrez Gene websites for every gene, if not already specified
-# 3) imports gene expression data
-# 4) calculates average and standard deviation for expression data for each sample type (e.g. Liver tissue)
-# 5) calculates pairwise ANOVAs to detect significant differences between pairs of samples (e.g. Liver and Spleen)
-# 6) calculates ANOVAs for all the samples
-# 7) merges expression data with ontologies and ANOVAs
+# 2) imports gene expression data
+# 3) calculates average and standard deviation for expression data for each sample type (e.g. Liver tissue)
+# 4) calculates pairwise ANOVAs to detect significant differences between pairs of samples (e.g. Liver and Spleen)
+# 5) calculates ANOVAs for all the samples
+# 6) merges expression data with ontologies and ANOVAs
+# 7) creates links to Entrez Gene websites for every gene, if not already specified
 # 8) finds unique ontology terms that are within the dataset (for use in the app to search by ontology term)
 # 9) rounds all values
 # 10) saves everything into an RMD file for later use 
@@ -83,29 +83,9 @@ prep_data = function(data_file, go_file,
     # ontology terms
     summarise_(GO = paste0('list(unique(setdiff(', ont_var, ', "")))')) 
   
-  # (2) create URLs for links to Entrez-Gene
-  make_html = function(url1, name,
-                       url2 = NULL,
-                       start = "<a href='",
-                       mid = "' target='_blank'>", end = "</a>") {
-    paste0(start, url1, url2, mid, name, end)
-  }
   
-  if(all(is.na(go[[entrez_var]]))) {
-    # doesn't exist; create it
-    go = go %>%
-      mutate_(url = paste0('make_html(', entrez_var, ',', go_merge_id, ')'))
-  } else {
-    # If they're already (partially) defined in the data frame, convert into HTML
-    go = go %>%
-      mutate_(url = paste0('make_html(url1 = entrez_link, url2 =', go_merge_id, ', name = ', go_merge_id, ')'))
-  }
   
-  # remove the original `entrez_var`; replaced by url
-  go = go %>%
-    select_(paste('-', entrez_var))
-  
-  # (3) expression data import --------------------------------------------------
+  # (2) expression data import --------------------------------------------------
   df = read.csv(data_file, stringsAsFactors = FALSE) %>% 
     filter_(paste0('!is.na(', data_unique_id, ') & ', data_unique_id, '!= ""'))
   
@@ -172,11 +152,12 @@ prep_data = function(data_file, go_file,
   
   
   print('Calculating average expression per sample.')
-  # (4) Calculate average and standard deviation for the samples
+  # (3) Calculate average and standard deviation for the samples
   df_sum = df %>% 
     group_by_(data_unique_id, data_merge_id, 'tissue') %>% 
     summarise(sem = sd(expr) / sqrt(length(expr)),
-              expr = mean(expr))
+              expr = mean(expr)) %>% 
+    ungroup()
   
   # ANOVAs --------------------------------------------------------------------------
   print('Time to calculate ANOVAs.')
@@ -191,7 +172,7 @@ prep_data = function(data_file, go_file,
     
     source('run_anovas.R')
     
-    # (5) Calculate pairwise ANOVAs
+    # (4) Calculate pairwise ANOVAs
     # Drop `data_merge_id` from ANOVA calcs.
     if(data_merge_id != data_unique_id) {
       df_anova = df %>% select_(paste0('-', data_merge_id))
@@ -206,7 +187,7 @@ prep_data = function(data_file, go_file,
       left_join(anovas2, by = setNames(data_unique_id, data_unique_id))
     
     if(numSamples > 2) { 
-      # (6) Calculate ANOVAs for all samples
+      # (5) Calculate ANOVAs for all samples
       anovasAll = run_anovas(df_anova, numSamples, data_unique_id)
       
       # merge ANOVAs
@@ -217,7 +198,7 @@ prep_data = function(data_file, go_file,
   
   
   
-  # (7) merge ontology terms, expression data, and ANOVAs --------------------------------
+  # (6) merge ontology terms, expression data, and ANOVAs --------------------------------
   
   # Check that merging will work.
   num_nonmatch = length(setdiff(df_sum[[data_merge_id]], go[[go_merge_id]]))
@@ -227,8 +208,34 @@ prep_data = function(data_file, go_file,
 These genes will have their ontology terms listed as missing."))
   }
   
+  
   # merge ont terms + expression data
-  df_sum = df_sum %>% left_join(go, by = setNames(go_merge_id, data_merge_id))
+  df_sum = left_join(df_sum, go, by = setNames(go_merge_id, data_merge_id)) 
+  
+  # (7) create URLs for links to Entrez-Gene --------------------------------------------------
+  make_html = function(url1, name,
+                       url2 = NULL,
+                       start = "<a href='",
+                       mid = "' target='_blank'>", end = "</a>") {
+    paste0(start, url1, url2, mid, name, end)
+  }
+  
+  if(all(is.na(df_sum[[entrez_var]]))) {
+    # doesn't exist; create it
+    df_sum = df_sum %>%
+      mutate_(url = paste0('make_html(url1 = entrez_link, url2 =', data_unique_id, ', name = ', data_unique_id, ')'))
+  } else {
+    # If they're already (partially) defined in the data frame, convert into HTML
+    df_sum = df_sum %>%
+      # check if the URL is an empty string; if so, just paste it's unique name
+      mutate_(url = paste0('ifelse(', entrez_var, '!= "" & !is.na(', entrez_var, '), 
+                           make_html(', entrez_var, ',', data_unique_id, '),', data_unique_id, ')'))
+  }
+  
+  # remove the original `entrez_var`; replaced by url
+  df_sum = df_sum %>%
+    select_(paste('-', entrez_var))
+  
   
   # (8) pull unique ontology terms that are within the merged dataset
   go_terms = df_sum %>% pull(ont_var) %>% unlist() %>% unique()
@@ -236,8 +243,7 @@ These genes will have their ontology terms listed as missing."))
   # (9) round values -------------------------------------------------------
   df_sum = df_sum %>% 
     mutate_at(funs(round(., num_digits)), .vars = c('expr', 'sem')) %>%
-    mutate_at(funs(signif(., num_digits)), .vars = vars(contains('_q'))) %>% 
-    ungroup()
+    mutate_at(funs(signif(., num_digits)), .vars = vars(contains('_q')))
   
   # if data_merge_id != data_unique_id, drop merge_id
   if(data_merge_id != data_unique_id) {
