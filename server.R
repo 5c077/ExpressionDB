@@ -13,7 +13,7 @@ shinyServer(
     populateSelectize2 <- reactive({
       updateSelectizeInput(session, 'descrip', choices = gene_names, 
                            options = list(placeholder = "search gene name"), 
-                           server = F)
+                           server = TRUE)
     })
     
     
