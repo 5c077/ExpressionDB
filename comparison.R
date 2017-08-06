@@ -17,6 +17,7 @@ output$g1 = renderUI({
 
 output$compPlot = renderPlot({
   
+  withProgress(message = 'Making plot', value = 0, {
   # Pull out the current Page Number
   pageNum = getCompPage()
   
@@ -118,7 +119,7 @@ output$compPlot = renderPlot({
           panel.border = element_rect(colour = grey90K, size = 0.25, fill = NA)) +
     facet_wrap(as.formula(paste0('~', data_unique_id))) +
     xlab('log(fold change)')
-  
+  })
 })
 
 
