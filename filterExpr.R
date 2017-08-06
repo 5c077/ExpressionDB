@@ -149,7 +149,7 @@ filterData <- reactive({
       
       filtered = filtered %>% 
         filter_gene(filteredTranscripts) %>%  # Filter
-        select(url, tissue, expr, q)%>%
+        select(gene = url, tissue, expr, q)%>%
         mutate(expr = ifelse(expr == 0, 0.0001, expr) # Correction so don't divide by 0. 
         ) 
       
