@@ -14,6 +14,8 @@ getPageHeat <- reactive({
 
 output$heatmap <- renderPlotly({
   withProgress(message = 'Making plot', value = 0, {
+    
+    
     pageNum_heat = getPageHeat()
     
     iBeg = (pageNum_heat)*nObsHeat + 1
@@ -21,54 +23,66 @@ output$heatmap <- renderPlotly({
     
     
     # Select just the expr cols and convert to wide df.
-    filteredData = filterData() %>% 
-      select_(data_unique_id, 'tissue', 'expr') %>% 
-      ungroup() 
+    filteredData = filterData() 
     
-    # rename columns to be consistent w/ what heatmaply wants
-    colnames(filteredData) = c('name', 'variable', 'value') 
-    
-    
-    # Check limits for iBeg and iEnd
-    if(iEnd > nrow(filteredData)) {
-      iEnd = nrow(filteredData)
-    }
-    
-    
-    # check if there's data.
-    if (nrow(filteredData) == 0){
-      #return an empty object
-      heatmaply(matrix(0), dendrogram = 'none')
-      print('no data')
-    } else {
-      # Look only at small subset of data
-      filteredData = filteredData %>% 
-        slice(iBeg:iEnd)
-      
-      
-      # Figure out how to scale the heatmap (no scaling, by row, log.)
-      if(input$scaleHeat == "log") {
-        scaleHeat = "none"
-        
-        print(filteredData)
+    # switching between volcano and plot causes a bit of mixing b/w filterData and the plotting
+    # filtering happens quicker than plotting, so it gets confused and gives a temp warning/error
+    if(!is.null(filteredData)) {
+      if(! 'FC' %in% colnames(filteredData)){
         
         filteredData = filteredData %>% 
-          mutate(value = ifelse(value == 0, log10(min_expr), log10(value)))
+          select_(data_unique_id, 'tissue', 'expr') %>% 
+          ungroup() 
         
-        print(filteredData)
+        # rename columns to be consistent w/ what heatmaply wants
+        colnames(filteredData) = c('name', 'variable', 'value') 
         
-      } else{
-        scaleHeat = input$scaleHeat
+        
+        # Check limits for iBeg and iEnd
+        if(iEnd > nrow(filteredData)) {
+          iEnd = nrow(filteredData)
+        }
+        
+        
+        # check if there's data.
+        if (nrow(filteredData) == 0){
+          #return an empty object
+          heatmaply(matrix(0), dendrogram = 'none')
+        } else {
+          # Look only at small subset of data
+          filteredData = filteredData %>% 
+            slice(iBeg:iEnd)
+          
+          
+          # Figure out how to scale the heatmap (no scaling, by row, log.)
+          if(input$scaleHeat == "log") {
+            scaleHeat = "none"
+            
+            print(filteredData)
+            
+            filteredData = filteredData %>% 
+              mutate(value = ifelse(value == 0, log10(min_expr), log10(value)))
+            
+            print(filteredData)
+            
+          } else{
+            scaleHeat = input$scaleHeat
+          }
+          
+          
+          
+          # Draw the heatmap
+          heatmaply(long_data = filteredData, scale = scaleHeat,
+                    colors = heatmap_palette,
+                    branches_lwd = 0.2, margins = c(50, 150, NA, 50),
+                    dendrogram = if(input$orderHeat){'both'} else{'none'}
+          )
+        }
+      } else {
+        heatmaply(matrix(0), dendrogram = 'none')
       }
-      
-      
-      
-      # Draw the heatmap
-      heatmaply(long_data = filteredData, scale = scaleHeat,
-                colors = heatmap_palette,
-                branches_lwd = 0.2, margins = c(50, 150, NA, 50),
-                dendrogram = if(input$orderHeat){'both'} else{'none'}
-      )
+    }  else {
+      heatmaply(matrix(0), dendrogram = 'none')
     }
   })
 })

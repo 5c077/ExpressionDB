@@ -6,17 +6,23 @@ output$table <- renderDataTable({
   withProgress(message = 'Generating table', value = 0, {
     filtered = filterData()
     
-    # Remove cols not needed in the table.
-    filtered = filtered %>% 
-      select_('url', go_gene_descrip, 'tissue', 'expr', 'q') %>% 
-      rename(gene = url) %>% 
-      rename_(.dots = setNames(go_gene_descrip, 'description'))
-    
-    # Provided there are rows in the data.table, convert to wide.
-    if(nrow(filtered) > 0) {
-      data.table::dcast(filtered, 
-                        ... ~ tissue, 
-                        value.var = 'expr')
+    # switching between volcano and plot causes a bit of mixing b/w filterData and the plotting
+    # filtering happens quicker than plotting, so it gets confused and gives a temp warning/error
+    if(!is.null(filtered)) {
+      if(! 'FC' %in% colnames(filtered)){
+        # Remove cols not needed in the table.
+        filtered = filtered %>% 
+          select_('url', go_gene_descrip, 'tissue', 'expr', 'q') %>% 
+          rename(gene = url) %>% 
+          rename_(.dots = setNames(go_gene_descrip, 'description'))
+        
+        # Provided there are rows in the data.table, convert to wide.
+        if(nrow(filtered) > 0) {
+          data.table::dcast(filtered, 
+                            ... ~ tissue, 
+                            value.var = 'expr')
+        }
+      }
     }
   })
 },  
