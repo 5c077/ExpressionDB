@@ -51,6 +51,7 @@ sample_vars = c('LV', 'SPL', 'HRT')
 sample_names = c('liver', 'spleen', 'heart')
 # ********************** end of stuff you need to change **********************
 
+
 # Optional things to change -- mostly aesthetics
 
 # If you've already specified links to Entrez Gene website, specify its column here
@@ -66,6 +67,9 @@ nObsHeat = 100 # number of observations in heatmap
 
 # color of the dots on the dot plot of the home page.
 dot_color = '#5254a3'
+
+min_expr = 1e-3 # minimum detectable expression.  All 0s replaced by min_expr. for log transformations and ANOVA calculations
+sd_thresh = 1e-6 # standard deviation threshold for ANOVA calculation; if there's little difference in all the samples, don't calc ANOVA (no variation)
 
 # [2] Import required libraries -----------------------------------------------
 
@@ -116,7 +120,9 @@ if(length(setdiff(c('go_terms.rds', 'expr_db.rds'), list.files(path = data_dir))
                             entrez_var = entrez_var,
                             entrez_link = entrez_link,
                             export_dir = data_dir,
-                            num_digits = num_digits)
+                            num_digits = num_digits,
+                            min_expr = min_expr,
+                            sd_thresh = sd_thresh)
   
   data = imported_data$df
   GOs = imported_data$go_terms

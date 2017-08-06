@@ -8,7 +8,7 @@
 run_anovas = function(geneExprData, 
                       n, # number of comparisons to make, e.g. n = 2 is for pairwise ANOVAs
                       gene_var,
-                      minExpr = 1e-3, # minimum detectable expression.  All 0s replaced by minExpr.,
+                      min_expr = 1e-3, # minimum detectable expression.  All 0s replaced by min_expr.,
                       sd_thresh = 1e-6 # Threshold to assume that there's no variation within the tissues, so don't calculate the ANOVA.
 ) {
   
@@ -17,7 +17,7 @@ run_anovas = function(geneExprData,
   sample_vars = sort(sample_vars) # Check that the muscles are in the proper order to match the tissues to the lookup table
   
   # (1) replace any 0s with minimum expression
-  geneExpr = lapply(geneExprData, function(x) ifelse(x == 0, minExpr, x))
+  geneExpr = lapply(geneExprData, function(x) ifelse(x == 0, min_expr, x))
   
   # (2) log2 transform all expression data
   geneExpr = lapply(geneExpr, 

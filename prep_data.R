@@ -34,7 +34,9 @@ prep_data = function(data_file, go_file,
                      entrez_var = 'geneLink',
                      entrez_link = 'http://www.ncbi.nlm.nih.gov/gene/?term=',
                      export_dir = 'data/',
-                     num_digits = 2) {
+                     num_digits = 2,
+                     min_expr = 1e-3, # minimum detectable expression.  All 0s replaced by min_expr.,
+                     sd_thresh = 1e-6) {
   # Check inputs ------------------------------------------------------------
   # Spaces aren't allowed in column names; during import they'll be converted to periods.
   data_unique_id = replace_space(data_unique_id)
@@ -180,7 +182,7 @@ prep_data = function(data_file, go_file,
       df_anova = df
     }
     
-    anovas2 = run_anovas(df_anova, 2, data_unique_id)
+    anovas2 = run_anovas(df_anova, n = 2, data_unique_id, min_expr, sd_thresh)
     
     # merge ANOVAs
     df_sum = df_sum %>% 
@@ -188,7 +190,7 @@ prep_data = function(data_file, go_file,
     
     if(numSamples > 2) { 
       # (5) Calculate ANOVAs for all samples
-      anovasAll = run_anovas(df_anova, numSamples, data_unique_id)
+      anovasAll = run_anovas(df_anova, n = numSamples, data_unique_id, min_expr, sd_thresh)
       
       # merge ANOVAs
       df_sum = df_sum %>% 
