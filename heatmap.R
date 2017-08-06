@@ -49,11 +49,12 @@ output$heatmap <- renderPlotly({
     if(input$scaleHeat == "log") {
       scaleHeat = "none"
       
+      print(filteredData)
+      
       filteredData = filteredData %>% 
-        mutate_each(funs(log10))
+        mutate(value = ifelse(value == 0, log10(min_expr), log10(value)))
       
-      
-      filteredData[filteredData == -Inf] = NA #! Note!  Fix this.  NA's don't work with foreign call to calc dendrogram.
+      print(filteredData)
       
     } else{
       scaleHeat = input$scaleHeat
