@@ -67,6 +67,9 @@ nObsHeat = 100 # number of observations in heatmap
 
 # color of the dots on the dot plot of the home page.
 dot_color = '#5254a3'
+accent_color = '#ce1256' # for PCA highlightinh
+
+dot_size = 4 # size of dots in dot plots
 
 min_expr = 1e-3 # minimum detectable expression.  All 0s replaced by min_expr. for log transformations and ANOVA calculations
 sd_thresh = 1e-6 # standard deviation threshold for ANOVA calculation; if there's little difference in all the samples, don't calc ANOVA (no variation)
@@ -150,5 +153,50 @@ maxInit = max(data$expr)
 # More aesthetics
 comparison_palette = brewer.pal(10, 'RdYlBu') # series of hexadecimal colors for comparison dot plot color scale
 heatmap_palette = magma(n = 256) # series of hexadecimal colors for heatmap color scale
+
+
+grey90K = '#414042'
+grey60K = '#808285'
+
+# look of the ggplot plots (main dot plot, comparison)
+theme_xOnly = function(textSize) {
+  theme(title = element_text(size = 32, color = grey90K),
+        axis.line = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_text(size = textSize, color = grey60K),
+        axis.text.y = element_text(vjust = 0.1),
+        axis.title.x = element_text(size = 19, color = grey60K), 
+        axis.title.y = element_blank(), 
+        legend.position="none",
+        panel.border = element_rect(colour = grey90K, size = 0.25, fill = NA),
+        panel.grid.major = element_line(color = grey60K, size = 0.2),
+        panel.grid.major.y = element_blank(),
+        panel.spacing = unit(15, units = 'points'),
+        panel.background = element_blank(), 
+        strip.text = element_text(size = 13, face = 'bold', color = grey60K),
+        strip.background = element_blank()
+  )
+}
+
+
+# look of the ggplot PCA plot
+theme_xy = function(textSize) {
+  theme(title = element_text(size = 32, color = grey90K),
+        axis.line = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_text(size = textSize, color = grey60K),
+        axis.text.y = element_text(vjust = 0.1),
+        axis.title.x = element_text(size = 19, color = grey60K), 
+        axis.title.y = element_blank(), 
+        legend.position="none",
+        panel.border = element_rect(colour = grey90K, size = 0.25, fill = NA),
+        panel.grid.major = element_line(color = grey60K, size = 0.2),
+        panel.spacing = unit(15, units = 'points'),
+        panel.background = element_blank(), 
+        strip.text = element_text(size = 13, face = 'bold', color = grey60K),
+        strip.background = element_blank()
+  )
+}
+
 
 

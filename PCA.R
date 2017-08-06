@@ -1,22 +1,17 @@
 output$pcaPlot = renderPlot({
   
-  # Vars for plots
-  mainColour = '#225ea8'
-  accentColour = '#ce1256'
-  
-  ptSize = 3
   
   # Call the PCA calculation
-  x = calcPCA()
+  pca_vals = calcPCA()
   
-  PCA = data.frame(x$x, ID = 1:nrow(x$x))
+  PCA = data.frame(pca_vals$x, ID = 1:nrow(pca_vals$x))
   
   mainPlot = ggplot(PCA, aes(x = PC1, y = PC2)) +
-    theme_bw() +
     xlab('principal component 1') +
     ylab('principal component 2') + 
-    geom_point(size = ptSize, alpha = 0.3, colour = mainColour) +
-    coord_cartesian(xlim = ranges$x, ylim = ranges$y)
+    geom_point(size = dot_size, alpha = 0.3, colour = dot_color) +
+    coord_cartesian(xlim = ranges$x, ylim = ranges$y) +
+    theme_xy(16)
   
   s = input$PCApts_rows_selected
   
@@ -33,8 +28,8 @@ output$pcaPlot = renderPlot({
     
     mainPlot + 
       geom_point(data = PCA[s, , drop = FALSE], 
-                 colour = accentColour, 
-                 size = ptSize,
+                 colour = accent_color, 
+                 size = dot_size,
                  alpha = 0.5)
   } else{
     mainPlot
