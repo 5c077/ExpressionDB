@@ -28,9 +28,18 @@ data_file = 'sample_data.csv'
 go_file = 'sample_ontologies.csv'
 data_dir = 'data/' # location where the data are stored
 
-data_gene_id = 'gene'
-go_gene_id = 'gene'
-go_gene_descrip = 'gene_description'
+# column name w/i `data_file` to ID unique observations (typically a gene name/id, or transcript name/id)
+data_unique_id = 'gene' # !! MUST CONTAIN UNIQUE VALUES
+
+# column names to use to merge the expression data to the ontology.
+# Can be the same column as data_unique_id
+data_merge_id = 'gene_id_data' # column within `data_file` to link to `go_file`
+go_merge_id = 'gene_id_go' # column within `go_file` to link to `data_file`
+
+# column within `go_file` that contains gene descriptions
+go_gene_descrip = 'gene_description' 
+
+# column within `go_file` that contains gene ontology terms
 ont_var = 'GO'
 
 # Create lookup table for all the tissues in your samples
@@ -56,8 +65,6 @@ nObsHeat = 100 # number of observations in heatmap
 
 # color of the dots on the dot plot of the home page.
 dot_color = '#5254a3'
-heatmap_palette = magma(n = 256) # series of hexadecimal colors for heatmap color scale
-
 
 # [2] Import required libraries -----------------------------------------------
 
@@ -100,8 +107,9 @@ if(length(setdiff(c('go_terms.rds', 'expr_db.rds'), list.files(path = data_dir))
   imported_data = prep_data(data_file = paste0(data_dir, data_file), 
                             go_file = paste0(data_dir, go_file),
                             sample_vars = sample_vars,
-                            data_gene_id = data_gene_id,
-                            go_gene_id = go_gene_id,
+                            data_unique_id = data_unique_id,
+                            data_merge_id = data_merge_id,
+                            go_merge_id = go_merge_id,
                             go_gene_descrip = go_gene_descrip,
                             ont_var = ont_var,
                             entrez_var = entrez_var,
@@ -131,4 +139,9 @@ if(length(setdiff(c('go_terms.rds', 'expr_db.rds'), list.files(path = data_dir))
 
 # Set the maximum of the expression, for the limits on the expression widget.
 maxInit = max(data$expr)
+
+# More aesthetics
+comparison_palette = brewer.pal(10, 'RdYlBu') # series of hexadecimal colors for comparison dot plot color scale
+heatmap_palette = magma(n = 256) # series of hexadecimal colors for heatmap color scale
+
 

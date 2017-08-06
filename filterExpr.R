@@ -45,7 +45,7 @@ filterData <- reactive({
   # you'll find only genes w/ both the name Myod1 and kinase as an ontology (which doesn't exist).
   # To switch this to an OR relationship, combine the geneInput and ont with an '|'.
   
-  basic_filter = function(df, qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) {
+  basic_filter = function(df, qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) {
     selNames = input$descrip
     
     # Check if q-column exists.  If not, set Q  = NA
@@ -62,7 +62,7 @@ filterData <- reactive({
       # no gene names to filter
       filt = filt %>% 
         filter(tissue %in% selMuscles) %>%    # muscles
-        filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
+        filter_(paste0("str_detect(str_to_lower(", data_unique_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
         filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
       
       if(!is.null(input$geneInput)) {
@@ -72,7 +72,7 @@ filterData <- reactive({
     } else {
       filt =  filt %>% 
         filter(tissue %in% selMuscles) %>%    # muscles
-        filter_(paste0("str_detect(str_to_lower(", data_gene_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
+        filter_(paste0("str_detect(str_to_lower(", data_unique_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
         filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
       
       # Run after filtering gene
@@ -93,7 +93,7 @@ filterData <- reactive({
   
   
   filter_gene = function(df, filteredDF) {
-    filter_arg = paste0(data_gene_id, " %in% list('",  paste(filteredDF, collapse = "','"), "')")
+    filter_arg = paste0(data_unique_id, " %in% list('",  paste(filteredDF, collapse = "','"), "')")
     
     df %>% filter_(filter_arg)
   }
@@ -103,7 +103,7 @@ filterData <- reactive({
     filtered %>%
       filter(expr <= input$maxExprVal,
              expr >= input$minExprVal) %>% 
-      pull(data_gene_id)
+      pull(data_unique_id)
     
   }
   
@@ -111,23 +111,23 @@ filterData <- reactive({
   # Check if q-value filtering is turned on
   if(input$adv == FALSE & qCol %in% colnames(data)) {
     filtered = data %>% 
-      basic_filter(qCol, selMuscles, data_gene_id, geneInput, ont_var, ont)
+      basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont)
     
     
   }  else if (input$adv == FALSE) {
     filtered = data %>% 
-      basic_filter(qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) %>%     
+      basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) %>%     
       mutate(q = NA)
     
   } else if(qCol %in% colnames(data)){
     # Check if the q values exist in the db.
     filtered = data %>% 
-      basic_filter(qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) %>% 
+      basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) %>% 
       filter(q < input$qVal)
     
   } else {
     filtered = data %>% 
-      basic_filter(qCol, selMuscles, data_gene_id, geneInput, ont_var, ont) %>% 
+      basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) %>% 
       mutate(q = NA)
   }
   
@@ -184,11 +184,11 @@ filterData <- reactive({
       # Pull out the expression values for the selected muscles
       relExpr = filtered %>% 
         filter(tissue == input$ref) %>% 
-        select_(data_gene_id, relExpr = 'expr')
+        select_(data_unique_id, relExpr = 'expr')
       
       # Figuring out which transcripts meet the fold change conditions.
       filteredFC = left_join(filtered, relExpr,         # Safer way: doing a many-to-one merge in:
-                             by = setNames(data_gene_id, data_gene_id)) %>% 
+                             by = setNames(data_unique_id, data_unique_id)) %>% 
         mutate(`fold change`= expr/relExpr) %>%         # calc fold change
         filter(`fold change` >= input$foldChange)       # filter FC
       

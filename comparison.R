@@ -4,7 +4,7 @@ output$g1 = renderUI({
   # Pull out the names of the filtered genes.
   selGenes = filterData()
   
-  selGenes = selGenes %>% distinct(data_gene_id) %>% pull()
+  selGenes = selGenes %>% distinct(data_unique_id) %>% pull()
   
   selectizeInput('compRef', label = 'ref. transcript',
                  choices = selGenes,
@@ -33,7 +33,7 @@ output$compPlot = renderPlot({
   
   
   refExpr = filteredData %>% 
-    filter_(paste0(data_gene_id, ' == refGene')) %>% 
+    filter_(paste0(data_unique_id, ' == refGene')) %>% 
     rename(refExpr = expr) %>% 
     ungroup() %>% 
     select(tissue, refExpr)
@@ -42,7 +42,7 @@ output$compPlot = renderPlot({
   # Remove the reference tissue.
   # Calculate the fold change
   filteredData = left_join(filteredData, refExpr, by = 'tissue') %>% 
-    filter_(paste0(data_gene_id, '!= input$compRef')) %>% 
+    filter_(paste0(data_unique_id, '!= input$compRef')) %>% 
     mutate(FC = expr / refExpr,
            logFC = log10(FC),
            logFC = ifelse(is.infinite(logFC), NA, logFC)) # correct for infinite values
@@ -51,8 +51,8 @@ output$compPlot = renderPlot({
   
   # Splay outward
   pairwise = filteredData %>% 
-    select_(data_gene_id, 'tissue', 'expr', 'refExpr') %>% 
-    spread_(data_gene_id, 'expr') %>%
+    select_(data_unique_id, 'tissue', 'expr', 'refExpr') %>% 
+    spread_(data_unique_id, 'expr') %>%
     select(-tissue)
   
   # Calculate correlation
@@ -63,7 +63,7 @@ output$compPlot = renderPlot({
     mutate(corr_name = row.names(correl))
   
   # Merge in with the master
-  filteredData = left_join(filteredData, correl, by = setNames('corr_name', data_gene_id))
+  filteredData = left_join(filteredData, correl, by = setNames('corr_name', data_unique_id))
   
   # Calculate limits for the plot
   yMax = max(abs(filteredData$logFC), na.rm = TRUE)
@@ -75,26 +75,26 @@ output$compPlot = renderPlot({
     orderNames = filteredData %>% 
       arrange(desc(corr)) # Sort by correlation coefficient, in descending order
     
-    orderNames = unique(orderNames[[data_gene_id]])
+    orderNames = unique(orderNames[[data_unique_id]])
     
   } else if (input$sortBy == 'least') {
     orderNames = filteredData %>% 
       arrange(corr) # Sort by correlation coefficient, in ascending order
     
-    orderNames = unique(orderNames[[data_gene_id]])
+    orderNames = unique(orderNames[[data_unique_id]])
   } else {
-    orderNames = sort(unique(filteredData[[data_gene_id]]))
+    orderNames = sort(unique(filteredData[[data_unique_id]]))
   }
   
   
-  filteredData[[data_gene_id]] = factor(filteredData[[data_gene_id]], orderNames)
+  filteredData[[data_unique_id]] = factor(filteredData[[data_unique_id]], orderNames)
   
   
   # Select just the transcripts that fit within the current page.
-  geneList = unique(filteredData[[data_gene_id]])[iBeg:iEnd]
+  geneList = unique(filteredData[[data_unique_id]])[iBeg:iEnd]
   
   filteredData = filteredData %>% 
-    filter_(paste0(data_gene_id, '%in% geneList'))
+    filter_(paste0(data_unique_id, '%in% geneList'))
   
   
   # Plot --------------------------------------------------------------------
@@ -110,12 +110,12 @@ output$compPlot = renderPlot({
     geom_vline(xintercept = 0, colour = grey90K, size = 0.25) +
     geom_point(size = 4, colour = grey60K,
                shape = 21) +
-    scale_fill_gradientn(colours = brewer.pal(10, 'RdYlBu'),
+    scale_fill_gradientn(colours = comparison_palette,
                          limits = c(-yMax, yMax)) +
     theme_xOnly(textSize) +
     theme(rect = element_rect(colour = grey90K, size = 0.25, fill = NA),
           panel.border = element_rect(colour = grey90K, size = 0.25, fill = NA)) +
-    facet_wrap(as.formula(paste0('~', data_gene_id))) +
+    facet_wrap(as.formula(paste0('~', data_unique_id))) +
     xlab('log(fold change)')
   
 })

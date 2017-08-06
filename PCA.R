@@ -53,7 +53,7 @@ output$PCApts <- renderDataTable({
   
   # Return only the first two PCs.
   filtered = data.frame(filtered$x, ID = 1:nrow(filtered$x)) %>% 
-    select_(data_gene_id, 'PC1', 'PC2')
+    select_(data_unique_id, 'PC1', 'PC2')
   
   # Check if there's brushing activated.  If not, display all.
   brush <- input$pcaBrush

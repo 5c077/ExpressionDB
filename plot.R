@@ -42,10 +42,10 @@ output$plot1 <- renderPlot({
   
   filteredData = filterData()
   
-  transcriptList = unique(filteredData[[data_gene_id]])[iBeg:iEnd]
+  transcriptList = unique(filteredData[[data_unique_id]])[iBeg:iEnd]
   
   data2Plot = filteredData %>% 
-    filter_(paste0(data_gene_id, '%in% transcriptList'))
+    filter_(paste0(data_unique_id, '%in% transcriptList'))
   
   # specify connection between sample_names and sample_vars
   sample_labels = sample_names
@@ -99,7 +99,7 @@ output$plot1 <- renderPlot({
       
       scale_x_discrete(labels = sample_labels) +
       
-      facet_wrap(as.formula(paste0('~', data_gene_id))) +
+      facet_wrap(as.formula(paste0('~', data_unique_id))) +
       theme_xOnly(textSize)
   }
   

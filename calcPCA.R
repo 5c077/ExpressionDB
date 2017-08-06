@@ -1,14 +1,14 @@
 calcPCA <- reactive({
   filteredData = filterData() %>% 
-    select_(data_gene_id, 'tissue', 'expr') %>% 
+    select_(data_unique_id, 'tissue', 'expr') %>% 
     spread(tissue, expr)
   
   geneNames = filteredData %>% 
-    select_(data_gene_id)
+    select_(data_unique_id)
   
   pca_data  = filteredData %>% 
     ungroup() %>% 
-    select_(paste0('-', data_gene_id))
+    select_(paste0('-', data_unique_id))
   
   PCA = prcomp(pca_data, scale = TRUE, center = TRUE)
   

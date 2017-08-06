@@ -21,7 +21,7 @@ output$heatmap <- renderPlotly({
   
   # Select just the expr cols and convert to wide df.
   filteredData = filterData() %>% 
-    select_(data_gene_id, 'tissue', 'expr') %>% 
+    select_(data_unique_id, 'tissue', 'expr') %>% 
     ungroup() 
   
   # rename columns to be consistent w/ what heatmaply wants
