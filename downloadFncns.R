@@ -19,7 +19,7 @@ output$downloadPNG = downloadHandler(
   },
   content = function(file) {
 
-    ggsave(file)
+    ggsave(file, width = 10, height = 10)
   }
 )
 
