@@ -4,7 +4,7 @@ output$g1 = renderUI({
   # Pull out the names of the filtered genes.
   selGenes = filterData()
   
-  selGenes = selGenes %>% distinct(data_unique_id) %>% pull()
+  selGenes = selGenes %>% distinct_(data_unique_id) %>% pull()
   
   selectizeInput('compRef', label = 'ref. transcript',
                  choices = selGenes,
@@ -30,6 +30,7 @@ output$compPlot = renderPlot({
   
   # pull out the data for the reference gene
   refGene = input$compRef
+  print(refGene)
   
   
   refExpr = filteredData %>% 
