@@ -58,12 +58,9 @@ output$heatmap <- renderPlotly({
           if(input$scaleHeat == "log") {
             scaleHeat = "none"
             
-            print(filteredData)
-            
             filteredData = filteredData %>% 
               mutate(value = ifelse(value == 0, log10(min_expr), log10(value)))
             
-            print(filteredData)
             
           } else{
             scaleHeat = input$scaleHeat
