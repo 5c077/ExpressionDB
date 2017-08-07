@@ -195,7 +195,8 @@ filterData <- reactive({
         filteredFC = left_join(filtered, relExpr,         # Safer way: doing a many-to-one merge in:
                                by = setNames(data_unique_id, data_unique_id)) %>% 
           mutate(`fold change`= expr/relExpr) %>%         # calc fold change
-          filter(`fold change` >= input$foldChange)       # filter FC
+          filter(`fold change` >= input$foldChange) %>%       # filter FC
+          pull(data_unique_id)
         
         # Select the transcripts where at least one tissue meets the conditions.
         filtered = filtered %>% 
