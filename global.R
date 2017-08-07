@@ -76,7 +76,7 @@ sd_thresh = 1e-6 # standard deviation threshold for ANOVA calculation; if there'
 # [2] Import required libraries -----------------------------------------------
 
 libraries = c('dplyr', 'tidyr', 'shiny', 'shinydashboard', 'stringr',
-              'DT', 'heatmaply', 'ggvis', 'ggplot2', 'dtplyr',
+              'DT', 'heatmaply', 'ggplot2', 'dtplyr',
               'data.table', 'RColorBrewer')
 
 # Built using: 

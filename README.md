@@ -8,13 +8,12 @@ For more thorough documentation, please visit our [Wiki page](https://github.com
 
 
 ### Required dependencies:
-* d3heatmap version 0.6.1.1  
 * data.table version 1.10.4
 * dplyr version 0.7.2
 * DT version 0.2             
 * dtplyr version 0.0.2         
 * ggplot2 version 2.2.1
-* ggvis version 0.4.3         
+* heatmaply version 0.10.1         
 * RColorBrewer version 1.1-2
 * shiny version 1.0.3         
 * shinydashboard version 0.6.1
