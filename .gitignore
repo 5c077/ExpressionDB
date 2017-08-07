@@ -11,3 +11,5 @@ data/annot_expdb_ratV2.csv
 *.rds
 *.rds
 *.jpeg
+data/microarray_sample_dataset.csv
+data/input_gtex_sample2.csv
