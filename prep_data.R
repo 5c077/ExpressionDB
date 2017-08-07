@@ -17,10 +17,11 @@
 # 1. check if column names have spaces; convert to periods (e.g. 'gene name' to 'gene.name')
 # 2. check that column names exist within `go` and `df` data files.
 # 3. check if entrez_var column exists. If not, create it.
-# 4. check that the data_unique_id column contains unique values
-# 5. check that the data_file contains only numeric values, aside from whatever is in `data_unique_id`
-# 6. check that data_file contains the correct sample names
-# 7. check that data_file and go_file have values that can merge together
+# 4. check that the go_merge_id column is unique (with multiple ontology terms)
+# 5. check that the data_unique_id column contains unique values
+# 6. check that the data_file contains only numeric values, aside from whatever is in `data_unique_id`
+# 7. check that data_file contains the correct sample names
+# 8. check that data_file and go_file have values that can merge together
 
 prep_data = function(data_file, go_file, 
                      # variable names within data_file
@@ -75,9 +76,7 @@ prep_data = function(data_file, go_file,
     go = go %>% mutate(entrez_var = NA)
   }
   
-  
-  
-  
+  # Collapse GOs
   go = go %>% 
     group_by_(go_merge_id, go_gene_descrip, entrez_var) %>%
     # collapse gene ontologies into a nested structure, with
@@ -85,6 +84,21 @@ prep_data = function(data_file, go_file,
     # ontology terms
     summarise_(GO = paste0('list(unique(setdiff(', ont_var, ', "")))')) 
   
+  
+  # check that `go_merge_id`, `go_gene_descrip`, and `entrez_var` specify unique values
+  dupes1 = duplicated(go[, c(go_merge_id, entrez_var)])
+  if(sum(dupes1) > 0) {
+    stop(paste0("Please edit the data in `go_file` so `go_merge_id` is unique. ",
+                "The following genes have multiple descriptions: ",
+                paste(go[dupes1, go_merge_id], collapse = ', ')))
+  }
+  
+  dupes2 = duplicated(go[, c(go_merge_id, go_gene_descrip)])
+  if(sum(dupes2) > 0) {
+    stop(paste0("Please edit the data in `go_file` so `go_merge_id` is unique. ",
+                "The following genes have multiple different Entrez Gene links: ",
+                paste(go[dupes2, go_merge_id], collapse = ', ')))
+  }
   
   
   # (2) expression data import --------------------------------------------------
@@ -130,7 +144,9 @@ prep_data = function(data_file, go_file,
   
   
   if(!setequal(sample_vars, expr_cols)) {
-    stop('Check that `sample_vars` within `global.R` match the column names within `data_file`.')
+    stop(paste0('Check that `sample_vars` within `global.R` match the column names within `data_file`.',
+                'You inputted: ', paste(sample_vars, collapse = ', '), 
+                ' but the data only contain: ', paste(expr_cols, collapse = ', ')))
   }
   
   
