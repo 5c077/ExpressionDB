@@ -10,8 +10,7 @@
 
 
 # LINES YOU NEED TO CHANGE
-# line 26: input the name of your data file, surrounded by quotes
-# line: input the name of your ontology file, surrounded by quotes
+# lines 26-50
 
 # STARTING THE APP
 # To start the application, click the Green Arrow that says "Run App" in RStudio
