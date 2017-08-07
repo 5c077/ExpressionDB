@@ -4,3 +4,9 @@
 .Rproj.user
 ExpressionDB.Rproj
 .Rhistory
+data/annot_expDB_human.csv
+data/annot_expdb_humanV2.csv
+data/annot_expdb_mouseV2.csv
+data/annot_expdb_ratV2.csv
+*.rds
+*.rds
