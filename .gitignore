@@ -10,3 +10,4 @@ data/annot_expdb_mouseV2.csv
 data/annot_expdb_ratV2.csv
 *.rds
 *.rds
+*.jpeg
