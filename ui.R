@@ -6,19 +6,27 @@ sidebar <- dashboardSidebar(
   # Search form for symbols
   sidebarSearchForm(label = "search symbol (Myod1)", "geneInput", "searchButton"),
   
+  # Search form for gene description
+  selectizeInput('descrip', label = 'search gene name', 
+                 choices = NULL, 
+                 multiple = TRUE, 
+                 options = list(maxOptions = 500,
+                                placeholder = 'search gene name',
+                                onInitialize = I('function() { this.setValue(""); }'))),
+  
   # Search form for ontology
-  # sidebarSearchForm(label = "search ontology (axon)", "GO", "searchButton"),
   selectizeInput('GO', label = 'search ontology', 
                  choices = NULL, 
-                 multiple = FALSE, 
+                 multiple = TRUE, 
                  options = list(maxOptions = 500,
                                 placeholder = 'search ontology',
                                 onInitialize = I('function() { this.setValue(""); }'))),
   
   # -- Tissue filtering --
   checkboxGroupInput("muscles","sample type", inline = FALSE,
-                     choices = tissueList,
-                     selected = selTissues),
+                     choiceNames = sample_names,
+                     choiceValues = sample_vars,
+                     selected = sample_vars),
   
   # Conditional for advanced filtering options.
   checkboxInput("adv", "advanced filtering", value = FALSE),
@@ -41,7 +49,9 @@ sidebar <- dashboardSidebar(
         Filters by the increase in expression, 
                          relative to a single muscle tissue</div>"))),
     radioButtons("ref", label = "reference tissue:", 
-                 choices = c('none',tissueList), selected = "none"),
+                 choiceNames = c('none', sample_names), 
+                 choiceValues = c('none', sample_vars),
+                 selected = "none"),
     numericInput("foldChange", label = 'fold change threshold', min = 0, value = 1, step = 0.5, width="100%"),
     
     # -- q-value. --
@@ -113,18 +123,28 @@ body <- dashboardBody(
             fluidRow(column(2, fluidRow(actionButton("prevPage", label="", icon = icon("chevron-left")))),
                      column(4, fluidRow(h5('view next results'))),
                      column(2, 
-                            fluidRow(actionButton("nextPage", label="", icon = icon("chevron-right"))))),
+                            fluidRow(actionButton("nextPage", label="", icon = icon("chevron-right")))),
+                     # Download png button
+                     column(2,
+                            downloadButton('downloadPNG', label = '.png', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5("")),
+                     # Download pdf button
+                     column(2,
+                            downloadButton('downloadPDF', label = '.pdf', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5(""))
+            ),
             plotOutput("plot1", height = "1000px")),
     
     
     # -- Full table with mini-stats. --
     tabItem(tabName = "table",
-          
+            
             # valueBoxes of min, max, avg.
             fluidRow(
               infoBoxOutput("maxExpr", width = 4),
               infoBoxOutput("avgExpr", width = 4),
-              # infoBoxOutput("minExpr", width = 4),
               
               # Download data button
               column(1,
@@ -147,7 +167,17 @@ body <- dashboardBody(
     tabItem(tabName = "volcano", 
             fluidRow(h4('Select two samples to compare.')),
             fluidRow(column(4, uiOutput('m1')),
-                     column(4, uiOutput('m2'))),
+                     column(4, uiOutput('m2')),
+                     # Download png button
+                     column(2,
+                            downloadButton('downloadPNG_v', label = '.png', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5("")),
+                     # Download pdf button
+                     column(2,
+                            downloadButton('downloadPDF_v', label = '.pdf', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5(""))),
             fluidRow(plotOutput("volcanoPlot", 
                                 dblclick = "volcanoDblclick",
                                 brush = brushOpts(
@@ -168,25 +198,46 @@ body <- dashboardBody(
                             plotOutput("pcaPlot", 
                                        click = "pcaDblclick",
                                        brush = brushOpts(
-                                        id = "pcaBrush",
-                                        resetOnNew = TRUE)),
+                                         id = "pcaBrush",
+                                         resetOnNew = TRUE)),
                             dataTableOutput("PCAload")),
-                     column(4,
+                     column(3,
                             infoBoxOutput("PCAstats", width = 12),
                             helpText('Zoom on a region by highlighting the graph and double clicking'),
                             helpText('Highlight a point on the graph by clicking a row in the table'),
-                            dataTableOutput("PCApts")))),
+                            dataTableOutput("PCApts")),
+                     # Download png button
+                     column(2,
+                            downloadButton('downloadPNG_p', label = '.png', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5("")),
+                     # Download pdf button
+                     column(2,
+                            downloadButton('downloadPDF_p', label = '.pdf', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5(""))
+            )),
     
     
     # -- Compare genes --
     tabItem(tabName = "compare",
             fluidRow(column(3, uiOutput('g1')), # selectize input to select the ref. tissue
-                     column(6, radioButtons("sortBy", label = 'sort by',
+                     column(5, radioButtons("sortBy", label = 'sort by',
                                             choices = c('most similar' = 'most', 
                                                         'least similar' = 'least', 
                                                         'alphabetically' = 'alpha'), 
                                             selected = 'most',
-                                            inline = TRUE))),
+                                            inline = TRUE)),
+                     # Download png button
+                     column(2,
+                            downloadButton('downloadPNG_c', label = '.png', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5("")),
+                     # Download pdf button
+                     column(2,
+                            downloadButton('downloadPDF_c', label = '.pdf', 
+                                           class = 'btn btn-lg active btn-inverted hover btn-inverted'),
+                            h5(""))),
             fluidRow(column(2, fluidRow(actionButton("prevComp", label="", icon = icon("chevron-left")))),
                      column(4, fluidRow(h5('view next results'))),
                      column(2, 
@@ -200,9 +251,9 @@ body <- dashboardBody(
                      column(2, 
                             fluidRow(actionButton("nextPageHeat", label="", icon = icon("chevron-right"))))),
             fluidRow(column(7,
-                            d3heatmapOutput("heatmap",
-                                            width = 500,
-                                            height = 550)),
+                            plotlyOutput("heatmap",
+                                         width = 500,
+                                         height = 550)),
                      column(5,
                             selectInput("scaleHeat", label = "heat map scaling",
                                         choices = c("none" = "none", "by row" = "row", 

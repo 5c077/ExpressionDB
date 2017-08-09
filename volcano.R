@@ -1,28 +1,32 @@
 # volcano table -----------------------------------------------------------
 
 output$volcanoTable <- renderDataTable({
-  filtered = filterData() %>% 
-    select(-transcriptName, -geneSymbol) %>% 
-    mutate(FC = signif(FC, 3),
-           logFC = signif(logFC, 3),
-           logQ = signif(logQ, 3))
+  filtered = filterData() 
   
-  brushedPoints(filtered, input$volcanoBrush)
-  
-  
-  # Check if there's brushing activated.  If not, display all.
-  brush <- input$volcanoBrush
-  
-  if (!is.null(brush)) {
-    brushedPoints(filtered, brush) # Highlight only those brushed
-  } else if(!is.null(ranges$x)){    # After double click; highlight those w/i plot window
-    filtered %>% 
-      filter(logFC >= ranges$x[1], logFC <= ranges$x[2], 
-             logQ >= ranges$y[1], logQ <= ranges$y[2])
-  } else {
-    filtered
+  if(!is.null(filtered)){ # check object exists
+    if(! 'expr' %in% colnames(filtered)) { # checks if the data has finished being transformed to a wide format
+      filtered = filtered %>% 
+        mutate(FC = signif(FC, 3),
+               logFC = signif(logFC, 3),
+               logQ = signif(logQ, 3))
+      
+      brushedPoints(filtered, input$volcanoBrush)
+      
+      
+      # Check if there's brushing activated.  If not, display all.
+      brush <- input$volcanoBrush
+      
+      if (!is.null(brush)) {
+        brushedPoints(filtered, brush) # Highlight only those brushed
+      } else if(!is.null(ranges$x)){    # After double click; highlight those w/i plot window
+        filtered %>% 
+          filter(logFC >= ranges$x[1], logFC <= ranges$x[2], 
+                 logQ >= ranges$y[1], logQ <= ranges$y[2])
+      } else {
+        filtered
+      }
+    }
   }
-  
   
 },  
 escape = c(-1,-2, -3),
@@ -88,28 +92,32 @@ output$m2 = renderUI(
 # ggvis volcano output ----------------------------------------------------
 
 output$volcanoPlot <- renderPlot({
-  filteredData = filterData()
-  
-  
-  # Temporary plot to be replaced by interactive version.  
-  ggplot(filteredData, aes(y = logQ, x = logFC)) +
-    geom_point(size = 3, alpha  = 0.3, colour = 'dodgerblue') +
-    coord_cartesian(xlim = ranges$x, ylim = ranges$y) +
-    theme(title = element_text(size = 32, color = grey90K),
-          axis.line = element_blank(),
-          axis.ticks = element_blank(),
-          axis.text = element_text(size = 16, color = grey60K, family = 'Segoe UI Light'),
-          axis.title = element_text(size = 18, color = grey60K, family = 'Segoe UI Light'),
-          legend.position="none",
-          panel.grid.major = element_line(color = grey60K, size = 0.2),
-          panel.border = element_blank(),
-          plot.margin = rep(unit(0, units = 'points'),4),
-          panel.background = element_blank(),
-          strip.text = element_text(size=13, face = 'bold', color = grey60K, family = 'Segoe UI Semilight'),
-          strip.background = element_blank()
-    )
+  withProgress(message = 'Making plot', value = 0, {
+    filteredData = filterData()
+    
+    if(!is.null(filteredData)){ # check object exists
+      if(! 'expr' %in% colnames(filteredData)) { # checks if the data has finished being transformed to a wide format
+        # Temporary plot to be replaced by interactive version.  
+        ggplot(filteredData, aes(y = logQ, x = logFC)) +
+          geom_point(size = 3, alpha  = 0.3, colour = 'dodgerblue') +
+          coord_cartesian(xlim = ranges$x, ylim = ranges$y) +
+          theme(title = element_text(size = 32, color = grey90K),
+                axis.line = element_blank(),
+                axis.ticks = element_blank(),
+                axis.text = element_text(size = 16, color = grey60K),
+                axis.title = element_text(size = 18, color = grey60K),
+                legend.position="none",
+                panel.grid.major = element_line(color = grey60K, size = 0.2),
+                panel.border = element_blank(),
+                plot.margin = rep(unit(0, units = 'points'),4),
+                panel.background = element_blank(),
+                strip.text = element_text(size=13, face = 'bold', color = grey60K),
+                strip.background = element_blank()
+          )
+      }
+    }
+  })
 })
-
 
 # Save volcano csv --------------------------------------------------------
 
@@ -118,8 +126,7 @@ output$csvVolcano <- downloadHandler(
     paste('volcano_data-', Sys.Date(), '.csv', sep='')
   },
   content = function(file) {
-    filteredData = filterData() %>% 
-      select(-transcript, -gene)
+    filteredData = filterData()
     
     write.csv(filteredData, file)
   }

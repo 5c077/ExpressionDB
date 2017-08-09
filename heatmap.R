@@ -1,7 +1,7 @@
 # Function to return a heatmap for MuscleDB.
 
 
-
+# Pagination to 
 getPageHeat <- reactive({
   page = (input$nextPageHeat - input$prevPageHeat)
   
@@ -12,94 +12,74 @@ getPageHeat <- reactive({
   }
 })
 
-output$heatmap <- renderD3heatmap({
-  nPlotsHeat = 100
-  pageNum_heat = getPageHeat()
-  
-  iBeg = (pageNum_heat)*nPlotsHeat + 1
-  iEnd = (pageNum_heat + 1)*nPlotsHeat
-  
-  
-  # Select just the expr cols and convert to wide df.
-  filteredData = filterData() %>% 
-    select(transcript, gene, tissue, expr) %>% 
-    spread(tissue, expr)
-  
-  # Check limits for iBeg and iEnd
-  if(iEnd > nrow(filteredData)) {
-    iEnd = nrow(filteredData)
-  }
-  
-
-  
-  # check if there's data.
-  if (nrow(filteredData) == 0){
-    #return an empty object
-    d3heatmap(rep(0,2), dendrogram = 'none')
-    print('no data')
-  } else {
-    # Look only at small subset of data
-    filteredData = filteredData %>% 
-      slice(iBeg:iEnd)
+output$heatmap <- renderPlotly({
+  withProgress(message = 'Making plot', value = 0, {
     
     
-    # Pull out the names to display
-    heatNames = filteredData %>% 
-      mutate(name = paste0(gene, " (", transcript, ")")) %>% 
-      select(name)
+    pageNum_heat = getPageHeat()
     
-    # Remove the non-numeric columns. 
-    filteredData = filteredData %>% 
-      select(-transcript, -gene)
+    iBeg = (pageNum_heat)*nObsHeat + 1
+    iEnd = (pageNum_heat + 1)*nObsHeat
     
     
-    # Figure out how to scale the heatmap (no scaling, by row, log.)
-    if(input$scaleHeat == "log") {
-      scaleHeat = "none"
-      
-      filteredData = filteredData %>% 
-        mutate_each(funs(log10))
-      
-      
-      filteredData[filteredData == -Inf] = NA #! Note!  Fix this.  NA's don't work with foreign call to calc dendrogram.
-      
-    } else{
-      scaleHeat = input$scaleHeat
+    # Select just the expr cols and convert to wide df.
+    filteredData = filterData() 
+    
+    # switching between volcano and plot causes a bit of mixing b/w filterData and the plotting
+    # filtering happens quicker than plotting, so it gets confused and gives a temp warning/error
+    if(!is.null(filteredData)) {
+      if(! 'FC' %in% colnames(filteredData)){
+        
+        filteredData = filteredData %>% 
+          select_(data_unique_id, 'tissue', 'expr') %>% 
+          ungroup() 
+        
+        # rename columns to be consistent w/ what heatmaply wants
+        colnames(filteredData) = c('name', 'variable', 'value') 
+        
+        
+        # Check limits for iBeg and iEnd
+        if(iEnd > nrow(filteredData)) {
+          iEnd = nrow(filteredData)
+        }
+        
+        
+        # check if there's data.
+        if (nrow(filteredData) == 0){
+          #return an empty object
+          heatmaply(matrix(0), dendrogram = 'none')
+        } else {
+          # Look only at small subset of data
+          filteredData = filteredData %>% 
+            slice(iBeg:iEnd)
+          
+          
+          # Figure out how to scale the heatmap (no scaling, by row, log.)
+          if(input$scaleHeat == "log") {
+            scaleHeat = "none"
+            
+            filteredData = filteredData %>% 
+              mutate(value = ifelse(value == 0, log10(min_expr), log10(value)))
+            
+            
+          } else{
+            scaleHeat = input$scaleHeat
+          }
+          
+          
+          
+          # Draw the heatmap
+          heatmaply(long_data = filteredData, scale = scaleHeat,
+                    colors = heatmap_palette,
+                    branches_lwd = 0.2, margins = c(50, 150, NA, 50),
+                    dendrogram = if(input$orderHeat){'both'} else{'none'}
+          )
+        }
+      } else {
+        heatmaply(matrix(0), dendrogram = 'none')
+      }
+    }  else {
+      heatmaply(matrix(0), dendrogram = 'none')
     }
-    
-    # Draw the heatmap
-    d3heatmap(filteredData, scale = scaleHeat, 
-              dendrogram = if(input$orderHeat){'both'} else{'none'}, 
-              # Rowv = TRUE, Colv = TRUE, 
-              show_grid = TRUE, color="YlOrRd", labRow = t(heatNames),
-              xaxis_height = 100, yaxis_width = 200
-    )
-  }
-})
-
-output$heatmapScale = renderPlot({
-  nPlotsHeat = 100
-  pageNum_heat = getPageHeat()
-  
-  iBeg = (pageNum_heat)*nPlotsHeat + 1
-  iEnd = (pageNum_heat + 1)*nPlotsHeat
-  
-  # Hack for now, to only look at small subset of data
-  # Select just the expr cols and convert to wide df.
-  filteredData = filterData() %>% 
-    select(transcript, gene, tissue, expr) %>% 
-    spread(tissue, expr) %>% 
-    slice(iBeg:iEnd)
-  
-  
-  exprLimits = filteredData %>% 
-    select(-transcript, -gene) %>% 
-    summarise_each(funs(max, min))
-  
-  minExpr = min(exprLimits)
-  
-  maxExpr = max(exprLimits)
-  
-  
-  
+  })
 })
