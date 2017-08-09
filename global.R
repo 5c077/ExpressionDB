@@ -38,7 +38,7 @@ go_merge_id = 'gene_id_go' # column within `go_file` to link to `data_file`
 # column within `go_file` that contains gene descriptions
 go_gene_descrip = 'gene_description' 
 
-# column within `go_file` that contains gene ontology terms
+# column within `go_file` (line #27) that contains gene ontology terms
 ont_var = 'GO'
 
 # Create lookup table for all the tissues in your samples
