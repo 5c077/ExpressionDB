@@ -14,7 +14,10 @@ filterData <- reactive({
     # Per1, Per2, Per3, ....
     # Note: to change to exact matching, include '$' at the end of the string.
     # geneInput = paste0(input$geneInput, '%') # For SQL-based filtering
-    geneInput = paste0('^', input$geneInput)
+    # geneInput = paste0('^', input$geneInput) # If you want to change so the search string starts with
+    
+      geneInput = input$geneInput
+    
     
     if(is.null(input$GO)){
       ont = ""
@@ -215,6 +218,6 @@ filterData <- reactive({
     }
     
     return(filtered)
-
+    
   })
 })

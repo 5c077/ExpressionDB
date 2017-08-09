@@ -137,7 +137,7 @@ prep_data = function(data_file, go_file,
      summarise_all(funs(sum(!is.numeric(.)))) %>% 
      t() %>% 
      sum() != 0) {
-    stop("`data_file` contains more than one non-numeric columns. Please input only the gene id and numeric expression data.")
+    stop("`data_file` contains more than two non-numeric columns. Please input only `data_unique_id`, `data_merge_id`, and numeric expression data.")
   }
   
   
@@ -263,9 +263,12 @@ These genes will have their ontology terms listed as missing."))
     mutate_at(funs(round(., num_digits)), .vars = c('expr', 'sem')) %>%
     mutate_at(funs(signif(., num_digits)), .vars = vars(contains('_q')))
   
-  # if data_merge_id != data_unique_id, drop merge_id
+  # if data_merge_id != data_unique_id, create a combined field and drop merge_id
   if(data_merge_id != data_unique_id) {
     df_sum = df_sum %>% 
+      mutate_(.dots = setNames(paste0('ifelse(!is.na(', data_merge_id, '), paste0(', 
+                                      data_merge_id, ", ' (', ", data_unique_id, ", ')'), ",
+                                      data_unique_id, ')'), data_unique_id)) %>% 
       select_(paste0('-', data_merge_id))
   }
   
