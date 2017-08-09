@@ -7,33 +7,17 @@ library(dplyr)
 library(tidyr)
 library(data.table)
 
-ont_files = list.files(path = 'data/') 
-ont_files = ont_files[ont_files%like% 'annot']
+ont_files = list.files(path = 'data/', full.names = TRUE) 
+ont_files = ont_files[ont_files%like% 'V3']
 
-# human
-ont = read.csv('data/annot_expdb_humanV2.csv', stringsAsFactors = FALSE)
-
-human = ont %>% 
-  separate(Gene.description, into = c('gene_description', 'source'), sep = ' \\[') %>% 
-  select(gene_id_go = Symbol, gene_description, geneLink, GO)
-
-write.csv(human, 'data/annot_expdb_human2017-08.csv')  
-
-# mouse
-ont = read.csv('data/annot_expdb_mouseV2.csv', stringsAsFactors = FALSE)
-
-mouse = ont %>% 
-  separate(Gene.description, into = c('gene_description', 'source'), sep = ' \\[') %>% 
-  select(gene_id_go = Symbol, gene_description, geneLink, GO)
-
-write.csv(mouse, 'data/annot_expdb_mouse2017-08.csv')  
-
-# zee rats
-ont = read.csv('data/annot_expdb_ratV2.csv', stringsAsFactors = FALSE)
-
-rat = ont %>% 
-  separate(Gene.description, into = c('gene_description', 'source'), sep = ' \\[') %>% 
-  select(gene_id_go = Symbol, gene_description, geneLink, GO)
-
-write.csv(rat, 'data/annot_expdb_rat2017-08.csv')  
-
+for(file in ont_files) {
+  ont = read.csv(file, stringsAsFactors = FALSE)
+  
+  species = str_replace_all(str_replace_all(file, "data//annot_expdb_", ""), 'V3.csv', '')
+  
+  ont = ont %>% 
+    # separate(Gene.description, into = c('gene_description', 'source'), sep = ' \\[') %>% 
+    select(gene_id_go = Symbol, gene_description = description, geneLink, GO)
+  
+  write.csv(ont, paste0('data/annot_expdb_', species, '2017-08.csv')) 
+}
