@@ -218,6 +218,6 @@ filterData <- reactive({
     }
     
     return(filtered)
-    
+
   })
 })

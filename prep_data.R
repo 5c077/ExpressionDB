@@ -26,7 +26,7 @@
 prep_data = function(data_file, go_file, 
                      # variable names within data_file
                      sample_vars,
-                     data_unique_id = 'gene',
+                     data_unique_id = 'transcript',
                      data_merge_id = 'gene_id_data',
                      # variable names within go_file
                      go_merge_id = 'gene_id_go',

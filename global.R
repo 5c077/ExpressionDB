@@ -23,8 +23,10 @@
 # ********************** CHANGE THESE LINES **********************
 # specify the path to your custom .csv data frame. 'sample_data.csv' 
 # is an example data frame with sample data and all of the required fields.
+
 data_file = 'sample_data.csv'
 go_file = 'sample_ontologies.csv'
+
 data_dir = 'data/' # location where the data are stored
 
 # column name w/i `data_file` to ID unique observations (typically a gene name/id, or transcript name/id)
@@ -38,16 +40,19 @@ go_merge_id = 'gene_id_go' # column within `go_file` to link to `data_file`
 # column within `go_file` that contains gene descriptions
 go_gene_descrip = 'gene_description' 
 
-# column within `go_file` that contains gene ontology terms
+
+# column within `go_file` (line #27) that contains gene ontology terms
 ont_var = 'GO'
 
 # Create lookup table for all the tissues in your samples
 # List of tissues; add tissue names here. Example shown to match with sample_data.csv
 # variable names of samples within your dataset
+
 sample_vars = c('tissueA', 'tissueB')
 
 # names you want displayed in the app. These must match the order of sample_vars.
 sample_names = c('tissueA', 'tissueB')
+
 # ********************** end of stuff you need to change **********************
 
 
