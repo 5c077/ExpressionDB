@@ -24,8 +24,8 @@
 # specify the path to your custom .csv data frame. 'sample_data.csv' 
 # is an example data frame with sample data and all of the required fields.
 
-data_file = 'sample_data.csv'
-go_file = 'sample_ontologies.csv'
+data_file = 'sample_data1_microarray_mouse.csv'
+go_file = 'annot_expdb_humanV3.5.csv'
 
 data_dir = 'data/' # location where the data are stored
 
