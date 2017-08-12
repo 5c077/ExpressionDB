@@ -5,7 +5,7 @@ ExpressionDB is an open source, [Shiny](https://shiny.rstudio.com/)-based applic
 Using ExpressionDB, we built a customized version to share [RNA-seq expression data of muscle tissues](http://muscledb.org/). 
 
 ## Getting Started
-After downloading this [repository](https://github.com/5c077/ExpressionDB/archive/master.zip), [R](), and RStudio](), you can launch the ExpressionDB app in RStudio with a sample dataset. Full instructions are available on our [Wiki page](https://github.com/5c077/ExpressionDB/wiki/Getting-Started). 
+After downloading this [repository](https://github.com/5c077/ExpressionDB/archive/master.zip), [R](https://cran.r-project.org/), and [RStudio](https://www.rstudio.com/products/rstudio/download/), you can launch the ExpressionDB app in RStudio with a sample dataset. Full instructions are available on our [Wiki page](https://github.com/5c077/ExpressionDB/wiki/Getting-Started). 
 
 ## Customizing with Your Own Data
 To add in your own data, view instructions on our [Wiki page](https://github.com/5c077/ExpressionDB/wiki/User's-Guide).
