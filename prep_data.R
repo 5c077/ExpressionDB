@@ -8,9 +8,9 @@
 # 4) calculates pairwise ANOVAs to detect significant differences between pairs of samples (e.g. Liver and Spleen)
 # 5) calculates ANOVAs for all the samples
 # 6) merges expression data with ontologies and ANOVAs
-# 7) creates links to Entrez Gene websites for every gene, if not already specified
-# 8) finds unique ontology terms that are within the dataset (for use in the app to search by ontology term)
-# 9) rounds all values
+# 7) finds unique ontology terms that are within the dataset (for use in the app to search by ontology term)
+# 8) rounds all values
+# 9) creates links to Entrez Gene websites for every gene, if not already specified
 # 10) saves everything into an RMD file for later use 
 
 # -- checks performed --
@@ -230,35 +230,12 @@ These genes will have their ontology terms listed as missing."))
   # merge ont terms + expression data
   df_sum = left_join(df_sum, go, by = setNames(go_merge_id, data_merge_id)) 
   
-  # (7) create URLs for links to Entrez-Gene --------------------------------------------------
-  make_html = function(url1, name,
-                       url2 = NULL,
-                       start = "<a href='",
-                       mid = "' target='_blank'>", end = "</a>") {
-    paste0(start, url1, url2, mid, name, end)
-  }
-  
-  if(all(is.na(df_sum[[entrez_var]]))) {
-    # doesn't exist; create it
-    df_sum = df_sum %>%
-      mutate_(url = paste0('make_html(url1 = entrez_link, url2 =', data_unique_id, ', name = ', data_unique_id, ')'))
-  } else {
-    # If they're already (partially) defined in the data frame, convert into HTML
-    df_sum = df_sum %>%
-      # check if the URL is an empty string; if so, just paste it's unique name
-      mutate_(url = paste0('ifelse(', entrez_var, '!= "" & !is.na(', entrez_var, '), 
-                           make_html(', entrez_var, ',', data_unique_id, '),', data_unique_id, ')'))
-  }
-  
-  # remove the original `entrez_var`; replaced by url
-  df_sum = df_sum %>%
-    select_(paste('-', entrez_var))
   
   
-  # (8) pull unique ontology terms that are within the merged dataset
+  # (7) pull unique ontology terms that are within the merged dataset
   go_terms = df_sum %>% pull(ont_var) %>% unlist() %>% unique()
   
-  # (9) round values -------------------------------------------------------
+  # (8) round values -------------------------------------------------------
   df_sum = df_sum %>% 
     mutate_at(funs(round(., num_digits)), .vars = c('expr', 'sem')) %>%
     mutate_at(funs(signif(., num_digits)), .vars = vars(contains('_q')))
@@ -270,6 +247,30 @@ These genes will have their ontology terms listed as missing."))
                                       data_merge_id, ", ' (', ", data_unique_id, ", ')'), ",
                                       data_unique_id, ')'), data_unique_id)) %>% 
       select_(paste0('-', data_merge_id))
+    
+    # (9) create URLs for links to Entrez-Gene --------------------------------------------------
+    make_html = function(url1, name,
+                         url2 = NULL,
+                         start = "<a href='",
+                         mid = "' target='_blank'>", end = "</a>") {
+      paste0(start, url1, url2, mid, name, end)
+    }
+    
+    if(all(is.na(df_sum[[entrez_var]]))) {
+      # doesn't exist; create it
+      df_sum = df_sum %>%
+        mutate_(url = paste0('make_html(url1 = entrez_link, url2 =', data_unique_id, ', name = ', data_unique_id, ')'))
+    } else {
+      # If they're already (partially) defined in the data frame, convert into HTML
+      df_sum = df_sum %>%
+        # check if the URL is an empty string; if so, just paste it's unique name
+        mutate_(url = paste0('ifelse(', entrez_var, '!= "" & !is.na(', entrez_var, '), 
+                             make_html(', entrez_var, ',', data_unique_id, '),', data_unique_id, ')'))
+    }
+    
+    # remove the original `entrez_var`; replaced by url
+    df_sum = df_sum %>%
+      select_(paste('-', entrez_var))
   }
   
   # (10) export ------------------------------------------------------------------
