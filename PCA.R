@@ -52,9 +52,10 @@ output$PCApts <- renderDataTable({
   # filtering happens quicker than plotting, so it gets confused and gives a temp warning/error
   if(!is.null(filtered)) {
     if(! 'FC' %in% colnames(filtered)){
+      
       # Return only the first two PCs.
       filtered = data.frame(filtered$x, ID = 1:nrow(filtered$x)) %>% 
-        select_(data_unique_id, 'PC1', 'PC2')
+        select(gene, PC1, PC2)
       
       # Check if there's brushing activated.  If not, display all.
       brush <- input$pcaBrush
