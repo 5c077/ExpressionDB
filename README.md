@@ -1,11 +1,17 @@
-# About the Database Template
-The collaborators behind [MuscleDB](https://github.com/flaneuse/muscleDB) have added Scott Lewis to the fold to spearhead a new branch in this project. Using the structure (skeleton) of MuscleDB, our objective is to establish a template intended to help researchers share and visualise their data on a web-based ShinyApps platform.
+# About ExpressionDB
+ExpressionDB is an open source, [Shiny](https://shiny.rstudio.com/)-based application for exploring, visualizing, and sharing gene expression data using minimal coding created by the [Hughes lab](http://www.openwetware.org/wiki/HughesLab:LabMembers) at [Washington University in St. Louis](https://pulmonary.wustl.edu/). Users can create a copy of the application, add in their own RNA-seq or microarray expression data, and deploy it locally or on a server. Built-in visualization tools include dot plots, heatmaps, volcano plots, and principal component analysis, in addition to capabilities for users to dynamically filter by gene name, gene symbol, gene description, gene ontologies, tissue type, and expression level. All of the scripts for building an ExpressionDB with user-supplied data are freely available on this website, and the Creative Commons license ([CC-BY-SA](https://creativecommons.org/licenses/by-sa/4.0/)) allows fully open customization by end-users.
 
-## Editing the Code
-In order for the user interface to accurately represent the new user data, certain fields of the code will need to be edited. This can be done by simply opening the files in RStudio. The "Comments" that follow the # symbol will give detailed intructions of what to input and where to put it. These edits will be specific to the user data, which is why it is important that the user review the file and make these changes manually.     
+## Sample Database
+Using ExpressionDB, we built a customized version to share [RNA-seq expression data of muscle tissues](http://muscledb.org/). 
 
-For more thorough documentation, please visit our [Wiki page](https://github.com/5c077/ExpressionDB/wiki/About).
+## Getting Started
+After downloading this [repository](https://github.com/5c077/ExpressionDB/archive/master.zip), [R](), and RStudio](), you can launch the ExpressionDB app in RStudio with a sample dataset. Full instructions are available on our [Wiki page](https://github.com/5c077/ExpressionDB/wiki/Getting-Started). 
 
+## Customizing with Your Own Data
+To add in your own data, view instructions on our [Wiki page](https://github.com/5c077/ExpressionDB/wiki/User's-Guide).
+
+## Issues? Questions?
+[Post an issue](https://github.com/5c077/ExpressionDB/issues/new) on the ExpressionDB GitHub page.
 
 ### Required dependencies:
 * data.table version 1.10.4
