@@ -19,7 +19,6 @@ filterData <- reactive({
     first_char = str_sub(input$geneInput, 1, 1)
     last_char = str_sub(input$geneInput, -1, -1)
     
-    print(input$geneInput)
     
     if(str_detect(input$geneInput,  '“?\\"') | str_detect(input$geneInput,  '"?\\"')){
       # If exact matching is turned on, there are 3 potential search matches: 
