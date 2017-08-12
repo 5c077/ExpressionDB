@@ -18,8 +18,8 @@ output$heatmap <- renderPlotly({
     
     pageNum_heat = getPageHeat()
     
-    iBeg = (pageNum_heat)*nObsHeat + 1
-    iEnd = (pageNum_heat + 1)*nObsHeat
+    iBeg = (pageNum_heat) * nObsHeat * length(input$muscles)  + 1
+    iEnd = (pageNum_heat + 1) * nObsHeat * length(input$muscles)
     
     
     # Select just the expr cols and convert to wide df.
