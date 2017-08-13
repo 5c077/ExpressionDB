@@ -8,9 +8,9 @@
 # 4) calculates pairwise ANOVAs to detect significant differences between pairs of samples (e.g. Liver and Spleen)
 # 5) calculates ANOVAs for all the samples
 # 6) merges expression data with ontologies and ANOVAs
-# 7) creates links to Entrez Gene websites for every gene, if not already specified
-# 8) finds unique ontology terms that are within the dataset (for use in the app to search by ontology term)
-# 9) rounds all values
+# 7) finds unique ontology terms that are within the dataset (for use in the app to search by ontology term)
+# 8) rounds all values
+# 9) creates links to Entrez Gene websites for every gene, if not already specified
 # 10) saves everything into an RMD file for later use 
 
 # -- checks performed --
@@ -230,7 +230,26 @@ These genes will have their ontology terms listed as missing."))
   # merge ont terms + expression data
   df_sum = left_join(df_sum, go, by = setNames(go_merge_id, data_merge_id)) 
   
-  # (7) create URLs for links to Entrez-Gene --------------------------------------------------
+  
+  # (7) pull unique ontology terms that are within the merged dataset
+  go_terms = df_sum %>% pull(ont_var) %>% unlist() %>% unique()
+  
+  # (8) round values -------------------------------------------------------
+  df_sum = df_sum %>% 
+    mutate_at(funs(round(., num_digits)), .vars = c('expr', 'sem')) %>%
+    mutate_at(funs(signif(., num_digits)), .vars = vars(contains('_q')))
+  
+  # if data_merge_id != data_unique_id, create a combined field and drop merge_id
+  if(data_merge_id != data_unique_id) {
+    df_sum = df_sum %>% 
+      mutate_(.dots = setNames(paste0('ifelse(!is.na(', data_merge_id, '), paste0(', 
+                                      data_merge_id, ", ' (', ", data_unique_id, ", ')'), ",
+                                      data_unique_id, ')'), data_unique_id)) %>% 
+      select_(paste0('-', data_merge_id))
+  }
+  
+  
+  # (9) create URLs for links to Entrez-Gene --------------------------------------------------
   make_html = function(url1, name,
                        url2 = NULL,
                        start = "<a href='",
@@ -253,24 +272,6 @@ These genes will have their ontology terms listed as missing."))
   # remove the original `entrez_var`; replaced by url
   df_sum = df_sum %>%
     select_(paste('-', entrez_var))
-  
-  
-  # (8) pull unique ontology terms that are within the merged dataset
-  go_terms = df_sum %>% pull(ont_var) %>% unlist() %>% unique()
-  
-  # (9) round values -------------------------------------------------------
-  df_sum = df_sum %>% 
-    mutate_at(funs(round(., num_digits)), .vars = c('expr', 'sem')) %>%
-    mutate_at(funs(signif(., num_digits)), .vars = vars(contains('_q')))
-  
-  # if data_merge_id != data_unique_id, create a combined field and drop merge_id
-  if(data_merge_id != data_unique_id) {
-    df_sum = df_sum %>% 
-      mutate_(.dots = setNames(paste0('ifelse(!is.na(', data_merge_id, '), paste0(', 
-                                      data_merge_id, ", ' (', ", data_unique_id, ", ')'), ",
-                                      data_unique_id, ')'), data_unique_id)) %>% 
-      select_(paste0('-', data_merge_id))
-  }
   
   # (10) export ------------------------------------------------------------------
   

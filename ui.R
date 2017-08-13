@@ -247,7 +247,7 @@ body <- dashboardBody(
     # -- Heat map --
     tabItem(tabName = "heatMap", 
             fluidRow(column(2, fluidRow(actionButton("prevPageHeat", label="", icon = icon("chevron-left")))),
-                     column(2, fluidRow(h5('view next 100 results'))),
+                     column(2, fluidRow(h5('view next results'))),
                      column(2, 
                             fluidRow(actionButton("nextPageHeat", label="", icon = icon("chevron-right"))))),
             fluidRow(column(7,

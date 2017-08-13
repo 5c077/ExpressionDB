@@ -16,7 +16,43 @@ filterData <- reactive({
     # geneInput = paste0(input$geneInput, '%') # For SQL-based filtering
     # geneInput = paste0('^', input$geneInput) # If you want to change so the search string starts with
     
-      geneInput = input$geneInput
+    first_char = str_sub(input$geneInput, 1, 1)
+    last_char = str_sub(input$geneInput, -1, -1)
+    
+    
+    if(str_detect(input$geneInput,  '“?\\"') | str_detect(input$geneInput,  '"?\\"')){
+      # If exact matching is turned on, there are 3 potential search matches: 
+      # What we want to match will be a string will either like
+      # (A) "merge_id (unique_id)", e.g. "Clfar (uc007bcn)"
+      # or (B) "unique_id", e.g. "uc007fix"
+      # User inputs need to be converted into regex exact matching.
+      # The user will input one of 3 things:
+      # [1] "merge_id" which will be converted into "^merge_id (" to exact match [Situation A]
+      #     (note: "(" has to be escaped; see below)
+      # [2] "unique_id" --> "(unique_id)$" [Situation A]
+      # [3] "unique_id" --> "^unique_id$" [Situation B]
+      
+      # replace by regex exact matching
+      # [1] "merge_id" --> "^merge_id ("
+      geneInput1 = str_replace(input$geneInput, first_char, '\\^')
+      # Multiple escape characters needed; in the end need "\\(" to escape the "("
+      # To get there, each \\ --> \
+      geneInput1 = str_replace(geneInput1, last_char, ' \\\\\\\\\\(')
+      
+      # [2] "unique_id" --> "(unique_id)$"
+      geneInput2 = str_replace(input$geneInput, first_char, '\\\\\\\\\\(')
+      # Multiple escape characters needed; in the end need "\\(" to escape the "("
+      # To get there, each \\ --> \
+      geneInput2 = str_replace(geneInput2, last_char, '\\\\\\\\\\)$')
+      
+      # [3] "unique_id" --> "^unique_id$" [Situation B]
+      geneInput3 = str_replace(str_replace(input$geneInput, first_char, '\\^'), last_char, '$')
+      
+    } else {
+      geneInput1 = input$geneInput
+      geneInput2 = NA
+      geneInput3 = NA
+    }
     
     
     if(is.null(input$GO)){
@@ -48,7 +84,7 @@ filterData <- reactive({
     # you'll find only genes w/ both the name Myod1 and kinase as an ontology (which doesn't exist).
     # To switch this to an OR relationship, combine the geneInput and ont with an '|'.
     
-    basic_filter = function(df, qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) {
+    basic_filter = function(df, qCol, selMuscles, data_unique_id, geneInput1, geneInput2, geneInput3, ont_var, ont) {
       selNames = input$descrip
       
       # Check if q-column exists.  If not, set Q  = NA
@@ -61,32 +97,25 @@ filterData <- reactive({
           mutate(q = NA)
       }
       
-      if(is.null(selNames)) {
-        # no gene names to filter
-        filt = filt %>% 
-          filter(tissue %in% selMuscles) %>%    # muscles
-          filter_(paste0("str_detect(str_to_lower(", data_unique_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
-          filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
-        
-        if(!is.null(input$geneInput)) {
-          #   # filter geneInput to only be those descriptions w/ those gene names
-          # updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = selNames)
-        }
+      if(!is.na(geneInput2)){
+        # exact matching of input$gene
+      filt =  filt %>% 
+        filter(tissue %in% selMuscles) %>%    # muscles
+        filter_(paste0("str_detect(str_to_lower(", data_unique_id, "), str_to_lower('", geneInput1, "')) |",
+                       "str_detect(str_to_lower(", data_unique_id, "), str_to_lower('", geneInput2, "')) |",
+                       "str_detect(str_to_lower(", data_unique_id, "), str_to_lower('", geneInput3, "'))")) %>%  # gene
+        filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
       } else {
+        # inexact matching of input$gene
         filt =  filt %>% 
           filter(tissue %in% selMuscles) %>%    # muscles
-          filter_(paste0("str_detect(str_to_lower(", data_unique_id, "), str_to_lower('", geneInput, "'))")) %>%  # gene
+          filter_(paste0("str_detect(str_to_lower(", data_unique_id, "), str_to_lower('", geneInput1, "'))")) %>%  # gene
           filter_(paste0("str_detect(", ont_var, ", '", ont, "')")) # gene ontology
-        
-        # Run after filtering gene
-        if(!is.null(input$geneInput)) {
-          #   # filter geneInput to only be those descriptions w/ those gene names
-          # updateSelectizeInput(session, 'descrip', choices = filt[[go_gene_descrip]], selected = selNames)
-        }
-        
+      }
+      
+      if(!is.null(selNames)) {
         filt = filt %>% 
           filter_(paste0(go_gene_descrip,' %in% input$descrip'))   # gene names
-        
       }
       
       
@@ -114,24 +143,24 @@ filterData <- reactive({
     # Check if q-value filtering is turned on
     if(input$adv == FALSE & qCol %in% colnames(data)) {
       filtered = data %>% 
-        basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont)
+        basic_filter(qCol, selMuscles, data_unique_id, geneInput1, geneInput2, geneInput3, ont_var, ont)
       
       
     }  else if (input$adv == FALSE) {
       filtered = data %>% 
-        basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) %>%     
+        basic_filter(qCol, selMuscles, data_unique_id, geneInput1, geneInput2, geneInput3, ont_var, ont) %>%     
         mutate(q = NA)
       
     } else if(qCol %in% colnames(data)){
       # Check if the q values exist in the db.
       filtered = data %>% 
-        basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) %>% 
+        basic_filter(qCol, selMuscles, data_unique_id, geneInput1, geneInput2, geneInput3, ont_var, ont) %>% 
         filter(q < input$qVal)
       
       
     } else {
       filtered = data %>% 
-        basic_filter(qCol, selMuscles, data_unique_id, geneInput, ont_var, ont) %>% 
+        basic_filter(qCol, selMuscles, data_unique_id, geneInput1, geneInput2, geneInput3, ont_var, ont) %>% 
         mutate(q = NA)
     }
     

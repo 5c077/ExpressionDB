@@ -67,7 +67,7 @@ num_digits = 2
 
 # number of plots to display in each page of the home page
 nPlots = 25
-nObsHeat = 100 # number of observations in heatmap
+nObsHeat = 50 # number of observations in heatmap
 
 # color of the dots on the dot plot of the home page.
 dot_color = '#5254a3'
