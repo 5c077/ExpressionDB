@@ -1,14 +1,3 @@
-library('dplyr')
-library('tidyr')
-library('shiny') 
-library('shinydashboard')
-library('stringr')
-library('DT')
-library('heatmaply') 
-library('ggplot2')
-library('dtplyr')
-library('data.table')
-library('RColorBrewer')
 # global.R ----------------------------------------------------------------
 # global.R is the starting point for an ExpressionDB app.
 # It does the following things:
@@ -116,8 +105,17 @@ to_install = setdiff(libraries, installed)
 lapply(to_install, function(x) install.packages(x))
 
 # load packages
-pk = lapply(libraries, function(x) library(x, character.only = TRUE))
-
+library('dplyr')
+library('tidyr')
+library('shiny') 
+library('shinydashboard')
+library('stringr')
+library('DT')
+library('heatmaply') 
+library('ggplot2')
+library('dtplyr')
+library('data.table')
+library('RColorBrewer')
 
 # [3] Import user-specified data set -----------------------------
 
