@@ -1,4 +1,14 @@
-
+library('dplyr')
+library('tidyr')
+library('shiny') 
+library('shinydashboard')
+library('stringr')
+library('DT')
+library('heatmaply') 
+library('ggplot2')
+library('dtplyr')
+library('data.table')
+library('RColorBrewer')
 # global.R ----------------------------------------------------------------
 # global.R is the starting point for an ExpressionDB app.
 # It does the following things:
