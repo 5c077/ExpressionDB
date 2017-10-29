@@ -226,7 +226,7 @@ body <- dashboardBody(
                                             choices = c('most similar' = 'most', 
                                                         'least similar' = 'least', 
                                                         'alphabetically' = 'alpha'), 
-                                            selected = 'most',
+                                            selected = 'alpha',
                                             inline = TRUE)),
                      # Download png button
                      column(2,

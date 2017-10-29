@@ -243,7 +243,7 @@ These genes will have their ontology terms listed as missing."))
   if(data_merge_id != data_unique_id) {
     df_sum = df_sum %>% 
       mutate_(.dots = setNames(paste0('ifelse(!is.na(', data_merge_id, '), paste0(', 
-                                      data_merge_id, ", ' (', ", data_unique_id, ", ')'), ",
+                                      data_merge_id, ", '\n (', ", data_unique_id, ", ')'), ",
                                       data_unique_id, ')'), data_unique_id)) %>% 
       select_(paste0('-', data_merge_id))
   }

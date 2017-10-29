@@ -3,6 +3,7 @@ output$pcaPlot = renderPlot({
     
     # Call the PCA calculation
     pca_vals = calcPCA()
+    incProgress(amount = 0.5)
     
     if(!is.null(pca_vals)){
       PCA = data.frame(pca_vals$x, ID = 1:nrow(pca_vals$x))
@@ -47,6 +48,7 @@ output$PCApts <- renderDataTable({
   
   # Calculate PCA using prcomp
   filtered = calcPCA()
+  
   
   # switching between volcano and plot causes a bit of mixing b/w filterData and the plotting
   # filtering happens quicker than plotting, so it gets confused and gives a temp warning/error

@@ -2,6 +2,7 @@
 
 output$volcanoTable <- renderDataTable({
   filtered = filterData() 
+
   
   if(!is.null(filtered)){ # check object exists
     if(! 'expr' %in% colnames(filtered)) { # checks if the data has finished being transformed to a wide format
@@ -94,6 +95,8 @@ output$m2 = renderUI(
 output$volcanoPlot <- renderPlot({
   withProgress(message = 'Making plot', value = 0, {
     filteredData = filterData()
+    
+    incProgress(amount = 0.5)
     
     if(!is.null(filteredData)){ # check object exists
       if(! 'expr' %in% colnames(filteredData)) { # checks if the data has finished being transformed to a wide format
