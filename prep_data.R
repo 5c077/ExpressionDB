@@ -271,7 +271,8 @@ These genes will have their ontology terms listed as missing."))
   
   # remove the original `entrez_var`; replaced by url
   df_sum = df_sum %>%
-    select_(paste('-', entrez_var))
+    select_(paste('-', entrez_var)) %>% 
+    ungroup() # !!! ungroup vars before saving. essential for performance w/ dplyr filtering
   
   # (10) export ------------------------------------------------------------------
   
