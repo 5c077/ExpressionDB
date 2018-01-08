@@ -10,7 +10,7 @@ After downloading this [repository](https://github.com/5c077/ExpressionDB/archiv
 ## Customizing with Your Own Data
 To add in your own data, view instructions on our [Wiki page](https://github.com/5c077/ExpressionDB/wiki/User's-Guide).
 
-## Issues? Questions?
+## Questions?
 [Post an issue](https://github.com/5c077/ExpressionDB/issues/new) on the ExpressionDB GitHub page.
 
 ### Required dependencies:
